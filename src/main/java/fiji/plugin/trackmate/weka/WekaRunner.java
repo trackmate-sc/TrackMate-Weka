@@ -132,8 +132,23 @@ public class WekaRunner< T extends RealType< T > & NativeType< T > > implements 
 		@SuppressWarnings( "unchecked" )
 		final ImgPlus< T > probaImp = TMUtils.rawWraps( probas );
 		final ImgPlus< T > classProba = TMUtils.hyperSlice( probaImp, classId, 0 );
+
+
 		// Translate back to ROI origin.
-		final RandomAccessibleInterval< T > output = Views.translate( classProba, interval.min( 0 ), interval.min( 1 ) );
+		final RandomAccessibleInterval< T > output;
+		if ( isProcessing3D )
+		{
+			/*
+			 * In 3D, the output for each class are interleaved in the Z
+			 * dimension.... So we need to de-interleave them manually.
+			 */
+			final RandomAccessibleInterval< T > deinterleaved = deinterleave( classProba, classId, segmentation.getNumOfClasses() );
+			output = Views.translate( deinterleaved, interval.min( 0 ), interval.min( 1 ), interval.min( 2 ) );
+		}
+		else
+		{
+			output = Views.translate( classProba, interval.min( 0 ), interval.min( 1 ) );
+		}
 		this.lastOutput = output;
 		this.lastCalibration = TMUtils.getSpatialCalibration( input );
 		return output;
@@ -157,15 +172,41 @@ public class WekaRunner< T extends RealType< T > & NativeType< T > > implements 
 
 	public List< Spot > getSpots( final RandomAccessibleInterval< T > proba, final double[] calibration, final double threshold, final boolean simplify )
 	{
-		final List< Spot > spots = MaskUtils.fromThresholdWithROI(
-				proba,
-				proba,
-				calibration,
-				threshold,
-				simplify,
-				numThreads,
-				proba );
+		final List< Spot > spots;
+		if ( isProcessing3D )
+		{
+			spots = MaskUtils.fromThreshold(
+					proba,
+					proba,
+					calibration,
+					threshold,
+					numThreads,
+					proba );
+		}
+		else
+		{
+			spots = MaskUtils.fromThresholdWithROI(
+					proba,
+					proba,
+					calibration,
+					threshold,
+					simplify,
+					numThreads,
+					proba );
+		}
 		return spots;
+	}
+
+	private RandomAccessibleInterval< T > deinterleave( final RandomAccessibleInterval< T > proba, final long start, final long step )
+	{
+		final List< RandomAccessibleInterval< T > > slices = new ArrayList<>();
+		final long nz = proba.dimension( 2 );
+		for ( long z = start; z < nz; z = z + step )
+		{
+			final RandomAccessibleInterval< T > slice = Views.hyperSlice( proba, 2, z );
+			slices.add( slice );
+		}
+		return Views.stack( slices );
 	}
 
 	@Override
