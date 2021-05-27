@@ -51,7 +51,6 @@ import fiji.plugin.trackmate.util.TMUtils;
 import net.imagej.ImgPlus;
 import net.imagej.axis.Axes;
 import net.imglib2.Interval;
-import net.imglib2.img.display.imagej.ImgPlusViews;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
@@ -273,28 +272,6 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 		}
 
 		return ok;
-	}
-
-	/**
-	 * Return 1-channel, all time-points, all-Zs if any.
-	 * 
-	 * @return an {@link ImgPlus}.
-	 */
-	protected ImgPlus< T > prepareImg()
-	{
-		final int cDim = img.dimensionIndex( Axes.CHANNEL );
-		final ImgPlus< T > imFrame;
-		if ( cDim < 0 )
-		{
-			imFrame = img;
-		}
-		else
-		{
-			// In ImgLib2, dimensions are 0-based.
-			final int channel = ( Integer ) settings.get( KEY_TARGET_CHANNEL ) - 1;
-			imFrame = ImgPlusViews.hyperSlice( img, cDim, channel );
-		}
-		return imFrame;
 	}
 
 	@Override
