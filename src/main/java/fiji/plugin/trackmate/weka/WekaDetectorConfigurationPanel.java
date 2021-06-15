@@ -421,7 +421,7 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		btnBrowse.setEnabled( false );
 		try
 		{
-			final File file = FileChooser.chooseFile( this, modelFileTextField.getText(), fileFilter, "Select an ilastik project file", DialogType.LOAD );
+			final File file = FileChooser.chooseFile( this, modelFileTextField.getText(), fileFilter, "Select an Weka model file", DialogType.LOAD );
 			if ( file != null )
 			{
 				modelFileTextField.setText( file.getAbsolutePath() );
