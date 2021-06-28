@@ -197,7 +197,7 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		 * Model file.
 		 */
 
-		final JLabel lblCusstomModelFile = new JLabel( "Ilastik file:" );
+		final JLabel lblCusstomModelFile = new JLabel( "Weka model file:" );
 		lblCusstomModelFile.setFont( FONT );
 		final GridBagConstraints gbc_lblCusstomModelFile = new GridBagConstraints();
 		gbc_lblCusstomModelFile.anchor = GridBagConstraints.SOUTHWEST;
