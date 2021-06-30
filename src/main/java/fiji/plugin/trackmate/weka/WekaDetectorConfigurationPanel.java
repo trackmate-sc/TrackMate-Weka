@@ -197,7 +197,7 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		 * Model file.
 		 */
 
-		final JLabel lblCusstomModelFile = new JLabel( "Ilastik file:" );
+		final JLabel lblCusstomModelFile = new JLabel( "Weka model file:" );
 		lblCusstomModelFile.setFont( FONT );
 		final GridBagConstraints gbc_lblCusstomModelFile = new GridBagConstraints();
 		gbc_lblCusstomModelFile.anchor = GridBagConstraints.SOUTHWEST;
@@ -421,7 +421,7 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		btnBrowse.setEnabled( false );
 		try
 		{
-			final File file = FileChooser.chooseFile( this, modelFileTextField.getText(), fileFilter, "Select an ilastik project file", DialogType.LOAD );
+			final File file = FileChooser.chooseFile( this, modelFileTextField.getText(), fileFilter, "Select an Weka model file", DialogType.LOAD );
 			if ( file != null )
 			{
 				modelFileTextField.setText( file.getAbsolutePath() );

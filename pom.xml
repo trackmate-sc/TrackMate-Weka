@@ -11,7 +11,7 @@
 
 	<groupId>sc.fiji</groupId>
 	<artifactId>TrackMate-Weka</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 
 	<name>TrackMate-Weka</name>
 	<description>TrackMate detector based on the Weka trainable segmentation plugin.</description>
@@ -127,7 +127,7 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate</artifactId>
-			<version>7.0.0-SNAPSHOT</version>
+			<version>7.0.0</version>
 		</dependency>
 		
 		<!--  Weka -->
