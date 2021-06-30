@@ -1,3 +1,5 @@
+[![](https://travis-ci.com/tinevez/TrackMate-Weka.svg?branch=master)](https://travis-ci.com/tinevez/TrackMate-Weka)
+
 # TrackMate-Weka
 
 A TrackMate detector that uses a Weka classifier to detect objects to track.
