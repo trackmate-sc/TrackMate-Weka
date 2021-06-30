@@ -59,8 +59,8 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/tinevez/TrackMate-Ilastik</connection>
-		<developerConnection>scm:git:git@github.com:tinevez/TrackMate-Ilastik</developerConnection>
+		<connection>scm:git:git://github.com/tinevez/TrackMate-Weka</connection>
+		<developerConnection>scm:git:git@github.com:tinevez/TrackMate-Weka</developerConnection>
 		<tag>HEAD</tag>
 		<url>https://github.com/tinevez/TrackMate-Weka</url>
 	</scm>
