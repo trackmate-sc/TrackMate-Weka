@@ -1,4 +1,4 @@
-[![](https://travis-ci.com/tinevez/TrackMate-Weka.svg?branch=master)](https://travis-ci.com/tinevez/TrackMate-Weka)
+[![](https://github.com/tinevez/TrackMate-Weka/actions//workflows/.gitaction.yml/badge.svg)](https://github.com/tinevez/TrackMate-Weka/actions/workflows/.gitaction.yml)
 
 # TrackMate-Weka
 
