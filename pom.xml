@@ -70,7 +70,7 @@
 	</issueManagement>
 	<ciManagement>
 		<system>GitHub Actions</system>
-		<url>https://travis-ci.com/tinevez/TrackMate-Weka</url>
+		<url>https://github.com/tinevez/TrackMate-Weka/actions</url>
 	</ciManagement>
 
 	<properties>
