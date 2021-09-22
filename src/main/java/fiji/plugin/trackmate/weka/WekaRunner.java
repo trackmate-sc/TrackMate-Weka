@@ -30,6 +30,7 @@ import fiji.plugin.trackmate.detection.MaskUtils;
 import fiji.plugin.trackmate.util.TMUtils;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.NewImage;
 import net.imagej.ImgPlus;
 import net.imagej.ops.MetadataUtil;
 import net.imglib2.Interval;
@@ -76,6 +77,7 @@ public class WekaRunner< T extends RealType< T > & NativeType< T > > implements 
 		errorMessage = null;
 		IJ.redirectErrorMessages();
 		segmentation = new WekaSegmentation( isProcessing3D );
+		segmentation.setTrainingImage( NewImage.createByteImage( "DummyImage", 16, 16, 1, NewImage.FILL_BLACK ) );
 		final boolean loadingOk = segmentation.loadClassifier( classifierFilePath );
 		if ( !loadingOk )
 		{
