@@ -303,4 +303,10 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 	{
 		return true;
 	}
+
+	@Override
+	public WekaDetectorFactory< T > copy()
+	{
+		return new WekaDetectorFactory<>();
+	}
 }
