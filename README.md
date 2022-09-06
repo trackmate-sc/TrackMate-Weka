@@ -1,6 +1,4 @@
-[![](https://github.com/tinevez/TrackMate-Weka/actions/workflows/build-main.yml/badge.svg)](https://github.com/tinevez/TrackMate-Weka/actions/workflows/build-main.yml)
-
-[![](https://github.com/tinevez/TrackMate-Weka/actions//workflows/.gitaction.yml/badge.svg)](https://github.com/tinevez/TrackMate-Weka/actions/workflows/.gitaction.yml)
+[![Build Status](https://github.com/trackmate-sc/TrackMate-Weka/actions/workflows/build-main.yml/badge.svg)](https://github.com/trackmate-sc/TrackMate-Weka/actions/workflows/build-main.yml)
 
 # TrackMate-Weka
 
