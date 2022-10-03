@@ -126,25 +126,25 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		final JLabel lblDetector = new JLabel( TITLE, ICON, JLabel.RIGHT );
 		lblDetector.setFont( BIG_FONT );
 		lblDetector.setHorizontalAlignment( SwingConstants.CENTER );
-		final GridBagConstraints gbc_lblDetector = new GridBagConstraints();
-		gbc_lblDetector.gridwidth = 3;
-		gbc_lblDetector.insets = new Insets( 5, 5, 5, 0 );
-		gbc_lblDetector.fill = GridBagConstraints.HORIZONTAL;
-		gbc_lblDetector.gridx = 0;
-		gbc_lblDetector.gridy = 0;
-		add( lblDetector, gbc_lblDetector );
+		final GridBagConstraints gbcLblDetector = new GridBagConstraints();
+		gbcLblDetector.gridwidth = 3;
+		gbcLblDetector.insets = new Insets( 5, 5, 5, 0 );
+		gbcLblDetector.fill = GridBagConstraints.HORIZONTAL;
+		gbcLblDetector.gridx = 0;
+		gbcLblDetector.gridy = 0;
+		add( lblDetector, gbcLblDetector );
 
 		/*
 		 * Help text.
 		 */
-		final GridBagConstraints gbc_lblHelptext = new GridBagConstraints();
-		gbc_lblHelptext.anchor = GridBagConstraints.NORTH;
-		gbc_lblHelptext.fill = GridBagConstraints.BOTH;
-		gbc_lblHelptext.gridwidth = 3;
-		gbc_lblHelptext.insets = new Insets( 5, 10, 5, 10 );
-		gbc_lblHelptext.gridx = 0;
-		gbc_lblHelptext.gridy = 1;
-		add( GuiUtils.textInScrollPanel( GuiUtils.infoDisplay( WekaDetectorFactory.INFO_TEXT ) ), gbc_lblHelptext );
+		final GridBagConstraints gbcLblHelptext = new GridBagConstraints();
+		gbcLblHelptext.anchor = GridBagConstraints.NORTH;
+		gbcLblHelptext.fill = GridBagConstraints.BOTH;
+		gbcLblHelptext.gridwidth = 3;
+		gbcLblHelptext.insets = new Insets( 5, 10, 5, 10 );
+		gbcLblHelptext.gridx = 0;
+		gbcLblHelptext.gridy = 1;
+		add( GuiUtils.textInScrollPanel( GuiUtils.infoDisplay( WekaDetectorFactory.INFO_TEXT ) ), gbcLblHelptext );
 
 		/*
 		 * Channel selector.
@@ -152,29 +152,29 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 		final JLabel lblSegmentInChannel = new JLabel( "Segment in channel:" );
 		lblSegmentInChannel.setFont( SMALL_FONT );
-		final GridBagConstraints gbc_lblSegmentInChannel = new GridBagConstraints();
-		gbc_lblSegmentInChannel.anchor = GridBagConstraints.EAST;
-		gbc_lblSegmentInChannel.insets = new Insets( 5, 5, 5, 5 );
-		gbc_lblSegmentInChannel.gridx = 0;
-		gbc_lblSegmentInChannel.gridy = 2;
-		add( lblSegmentInChannel, gbc_lblSegmentInChannel );
+		final GridBagConstraints gbcLblSegmentInChannel = new GridBagConstraints();
+		gbcLblSegmentInChannel.anchor = GridBagConstraints.EAST;
+		gbcLblSegmentInChannel.insets = new Insets( 5, 5, 5, 5 );
+		gbcLblSegmentInChannel.gridx = 0;
+		gbcLblSegmentInChannel.gridy = 2;
+		add( lblSegmentInChannel, gbcLblSegmentInChannel );
 
 		sliderChannel = new JSlider();
-		final GridBagConstraints gbc_sliderChannel = new GridBagConstraints();
-		gbc_sliderChannel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_sliderChannel.insets = new Insets( 5, 5, 5, 5 );
-		gbc_sliderChannel.gridx = 1;
-		gbc_sliderChannel.gridy = 2;
-		add( sliderChannel, gbc_sliderChannel );
+		final GridBagConstraints gbcSliderChannel = new GridBagConstraints();
+		gbcSliderChannel.fill = GridBagConstraints.HORIZONTAL;
+		gbcSliderChannel.insets = new Insets( 5, 5, 5, 5 );
+		gbcSliderChannel.gridx = 1;
+		gbcSliderChannel.gridy = 2;
+		add( sliderChannel, gbcSliderChannel );
 
 		final JLabel labelChannel = new JLabel( "1" );
 		labelChannel.setHorizontalAlignment( SwingConstants.CENTER );
 		labelChannel.setFont( SMALL_FONT );
-		final GridBagConstraints gbc_labelChannel = new GridBagConstraints();
-		gbc_labelChannel.insets = new Insets( 5, 5, 5, 0 );
-		gbc_labelChannel.gridx = 2;
-		gbc_labelChannel.gridy = 2;
-		add( labelChannel, gbc_labelChannel );
+		final GridBagConstraints gbcLabelChannel = new GridBagConstraints();
+		gbcLabelChannel.insets = new Insets( 5, 5, 5, 0 );
+		gbcLabelChannel.gridx = 2;
+		gbcLabelChannel.gridy = 2;
+		add( labelChannel, gbcLabelChannel );
 
 		sliderChannel.addChangeListener( l -> labelChannel.setText( "" + sliderChannel.getValue() ) );
 
@@ -184,32 +184,32 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 		final JLabel lblCusstomModelFile = new JLabel( "Weka model file:" );
 		lblCusstomModelFile.setFont( FONT );
-		final GridBagConstraints gbc_lblCusstomModelFile = new GridBagConstraints();
-		gbc_lblCusstomModelFile.anchor = GridBagConstraints.SOUTHWEST;
-		gbc_lblCusstomModelFile.insets = new Insets( 0, 5, 5, 5 );
-		gbc_lblCusstomModelFile.gridx = 0;
-		gbc_lblCusstomModelFile.gridy = 3;
-		add( lblCusstomModelFile, gbc_lblCusstomModelFile );
+		final GridBagConstraints gbcLblCusstomModelFile = new GridBagConstraints();
+		gbcLblCusstomModelFile.anchor = GridBagConstraints.SOUTHWEST;
+		gbcLblCusstomModelFile.insets = new Insets( 0, 5, 5, 5 );
+		gbcLblCusstomModelFile.gridx = 0;
+		gbcLblCusstomModelFile.gridy = 3;
+		add( lblCusstomModelFile, gbcLblCusstomModelFile );
 
 		btnBrowse = new JButton( "Browse" );
 		btnBrowse.setFont( FONT );
-		final GridBagConstraints gbc_btnBrowse = new GridBagConstraints();
-		gbc_btnBrowse.insets = new Insets( 5, 0, 5, 0 );
-		gbc_btnBrowse.anchor = GridBagConstraints.SOUTHEAST;
-		gbc_btnBrowse.gridwidth = 2;
-		gbc_btnBrowse.gridx = 1;
-		gbc_btnBrowse.gridy = 3;
-		add( btnBrowse, gbc_btnBrowse );
+		final GridBagConstraints gbcBtnBrowse = new GridBagConstraints();
+		gbcBtnBrowse.insets = new Insets( 5, 0, 5, 0 );
+		gbcBtnBrowse.anchor = GridBagConstraints.SOUTHEAST;
+		gbcBtnBrowse.gridwidth = 2;
+		gbcBtnBrowse.gridx = 1;
+		gbcBtnBrowse.gridy = 3;
+		add( btnBrowse, gbcBtnBrowse );
 
 		modelFileTextField = new JTextField( "" );
 		modelFileTextField.setFont( SMALL_FONT );
-		final GridBagConstraints gbc_textField = new GridBagConstraints();
-		gbc_textField.gridwidth = 3;
-		gbc_textField.insets = new Insets( 0, 5, 5, 5 );
-		gbc_textField.fill = GridBagConstraints.BOTH;
-		gbc_textField.gridx = 0;
-		gbc_textField.gridy = 4;
-		add( modelFileTextField, gbc_textField );
+		final GridBagConstraints gbcTextField = new GridBagConstraints();
+		gbcTextField.gridwidth = 3;
+		gbcTextField.insets = new Insets( 0, 5, 5, 5 );
+		gbcTextField.fill = GridBagConstraints.BOTH;
+		gbcTextField.gridx = 0;
+		gbcTextField.gridy = 4;
+		add( modelFileTextField, gbcTextField );
 		modelFileTextField.setColumns( 10 );
 
 		/*
@@ -218,12 +218,12 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 		final JLabel lblClassId = new JLabel( "Target class:" );
 		lblClassId.setFont( SMALL_FONT );
-		final GridBagConstraints gbc_lblOverlapThreshold = new GridBagConstraints();
-		gbc_lblOverlapThreshold.anchor = GridBagConstraints.EAST;
-		gbc_lblOverlapThreshold.insets = new Insets( 5, 5, 5, 5 );
-		gbc_lblOverlapThreshold.gridx = 0;
-		gbc_lblOverlapThreshold.gridy = 5;
-		add( lblClassId, gbc_lblOverlapThreshold );
+		final GridBagConstraints gbcLblOverlapThreshold = new GridBagConstraints();
+		gbcLblOverlapThreshold.anchor = GridBagConstraints.EAST;
+		gbcLblOverlapThreshold.insets = new Insets( 5, 5, 5, 5 );
+		gbcLblOverlapThreshold.gridx = 0;
+		gbcLblOverlapThreshold.gridy = 5;
+		add( lblClassId, gbcLblOverlapThreshold );
 
 		// For now we simply put a list of dummy class names.
 		final Vector< String > dummyClassNames = new Vector<>( Arrays.asList( new String[] {
@@ -231,12 +231,12 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 		cmbboxClassId = new JComboBox<>( dummyClassNames );
 		cmbboxClassId.setFont( SMALL_FONT );
-		final GridBagConstraints gbc_sliderClassId = new GridBagConstraints();
-		gbc_sliderClassId.fill = GridBagConstraints.HORIZONTAL;
-		gbc_sliderClassId.insets = new Insets( 0, 0, 5, 5 );
-		gbc_sliderClassId.gridx = 1;
-		gbc_sliderClassId.gridy = 5;
-		add( cmbboxClassId, gbc_sliderClassId );
+		final GridBagConstraints gbcSliderClassId = new GridBagConstraints();
+		gbcSliderClassId.fill = GridBagConstraints.HORIZONTAL;
+		gbcSliderClassId.insets = new Insets( 0, 0, 5, 5 );
+		gbcSliderClassId.gridx = 1;
+		gbcSliderClassId.gridy = 5;
+		add( cmbboxClassId, gbcSliderClassId );
 
 		/*
 		 * Proba threshold.
@@ -244,35 +244,35 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 		final JLabel lblScoreTreshold = new JLabel( "Threshold on probability:" );
 		lblScoreTreshold.setFont( SMALL_FONT );
-		final GridBagConstraints gbc_lblScoreTreshold = new GridBagConstraints();
-		gbc_lblScoreTreshold.anchor = GridBagConstraints.EAST;
-		gbc_lblScoreTreshold.insets = new Insets( 5, 5, 5, 5 );
-		gbc_lblScoreTreshold.gridx = 0;
-		gbc_lblScoreTreshold.gridy = 6;
-		add( lblScoreTreshold, gbc_lblScoreTreshold );
+		final GridBagConstraints gbcLblScoreTreshold = new GridBagConstraints();
+		gbcLblScoreTreshold.anchor = GridBagConstraints.EAST;
+		gbcLblScoreTreshold.insets = new Insets( 5, 5, 5, 5 );
+		gbcLblScoreTreshold.gridx = 0;
+		gbcLblScoreTreshold.gridy = 6;
+		add( lblScoreTreshold, gbcLblScoreTreshold );
 
 		ftfProbaThreshold = new JFormattedTextField( THRESHOLD_FORMAT );
 		ftfProbaThreshold.setFont( SMALL_FONT );
 		ftfProbaThreshold.setMinimumSize( new Dimension( 60, 20 ) );
 		ftfProbaThreshold.setHorizontalAlignment( SwingConstants.CENTER );
-		final GridBagConstraints gbc_score = new GridBagConstraints();
-		gbc_score.fill = GridBagConstraints.HORIZONTAL;
-		gbc_score.insets = new Insets( 5, 5, 5, 5 );
-		gbc_score.gridx = 1;
-		gbc_score.gridy = 6;
-		add( ftfProbaThreshold, gbc_score );
+		final GridBagConstraints gbcScore = new GridBagConstraints();
+		gbcScore.fill = GridBagConstraints.HORIZONTAL;
+		gbcScore.insets = new Insets( 5, 5, 5, 5 );
+		gbcScore.gridx = 1;
+		gbcScore.gridy = 6;
+		add( ftfProbaThreshold, gbcScore );
 
 		/*
 		 * Logger.
 		 */
 
 		final JLabelLogger labelLogger = new JLabelLogger();
-		final GridBagConstraints gbc_labelLogger = new GridBagConstraints();
-		gbc_labelLogger.fill = GridBagConstraints.BOTH;
-		gbc_labelLogger.gridwidth = 3;
-		gbc_labelLogger.gridx = 0;
-		gbc_labelLogger.gridy = 9;
-		add( labelLogger, gbc_labelLogger );
+		final GridBagConstraints gbcLabelLogger = new GridBagConstraints();
+		gbcLabelLogger.fill = GridBagConstraints.BOTH;
+		gbcLabelLogger.gridwidth = 3;
+		gbcLabelLogger.gridx = 0;
+		gbcLabelLogger.gridy = 9;
+		add( labelLogger, gbcLabelLogger );
 		this.localLogger = labelLogger.getLogger();
 
 		/*
@@ -281,13 +281,13 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 		final JButton btnPreview = new JButton( "Preview", PREVIEW_ICON );
 		btnPreview.setFont( FONT );
-		final GridBagConstraints gbc_btnPreview = new GridBagConstraints();
-		gbc_btnPreview.gridwidth = 1;
-		gbc_btnPreview.anchor = GridBagConstraints.SOUTHEAST;
-		gbc_btnPreview.insets = new Insets( 5, 5, 5, 5 );
-		gbc_btnPreview.gridx = 2;
-		gbc_btnPreview.gridy = 8;
-		add( btnPreview, gbc_btnPreview );
+		final GridBagConstraints gbcBtnPreview = new GridBagConstraints();
+		gbcBtnPreview.gridwidth = 1;
+		gbcBtnPreview.anchor = GridBagConstraints.SOUTHEAST;
+		gbcBtnPreview.insets = new Insets( 5, 5, 5, 5 );
+		gbcBtnPreview.gridx = 2;
+		gbcBtnPreview.gridy = 8;
+		add( btnPreview, gbcBtnPreview );
 
 		/*
 		 * Refresh class names.
@@ -316,12 +316,12 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		 */
 		if ( null != settings.imp )
 		{
-			final int n_channels = settings.imp.getNChannels();
-			sliderChannel.setMaximum( n_channels );
+			final int nChannels = settings.imp.getNChannels();
+			sliderChannel.setMaximum( nChannels );
 			sliderChannel.setMinimum( 1 );
 			sliderChannel.setValue( settings.imp.getChannel() );
 
-			if ( n_channels <= 1 )
+			if ( nChannels <= 1 )
 			{
 				labelChannel.setVisible( false );
 				lblSegmentInChannel.setVisible( false );
