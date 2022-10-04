@@ -172,6 +172,16 @@ public class WekaRunner< T extends RealType< T > & NativeType< T > > implements 
 		return getSpots( lastOutput, lastCalibration, threshold, simplify );
 	}
 
+	/**
+	 * Exposes the last probability image calculated.
+	 * 
+	 * @return the last probability image calculated. May be <code>null</code>
+	 */
+	public RandomAccessibleInterval< T > getLastOutput()
+	{
+		return lastOutput;
+	}
+
 	public List< Spot > getSpots( final RandomAccessibleInterval< T > proba, final double[] calibration, final double threshold, final boolean simplify )
 	{
 		final List< Spot > spots;

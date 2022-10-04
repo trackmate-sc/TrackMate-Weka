@@ -69,6 +69,7 @@ import fiji.plugin.trackmate.util.FileChooser;
 import fiji.plugin.trackmate.util.FileChooser.DialogType;
 import fiji.plugin.trackmate.util.JLabelLogger;
 import fiji.plugin.trackmate.util.TMUtils;
+import ij.ImagePlus;
 import net.imagej.ImgPlus;
 import net.imagej.axis.Axes;
 
@@ -272,6 +273,20 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		add( btnClassNames, gbcBtnClassNames );
 
 		/*
+		 * View last proba.
+		 */
+
+		final JButton btnLastProba = new JButton( "Last proba map", MAGNIFIER_ICON );
+		btnLastProba.setFont( FONT );
+		final GridBagConstraints gbcBtnLastProba = new GridBagConstraints();
+		gbcBtnLastProba.gridwidth = 2;
+		gbcBtnLastProba.anchor = GridBagConstraints.SOUTHEAST;
+		gbcBtnLastProba.insets = new Insets( 5, 5, 5, 5 );
+		gbcBtnLastProba.gridx = 1;
+		gbcBtnLastProba.gridy = 7;
+		add( btnLastProba, gbcBtnLastProba );
+
+		/*
 		 * Preview.
 		 */
 
@@ -294,6 +309,7 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		 */
 
 		btnClassNames.addActionListener( e -> updateClassNames() );
+		btnLastProba.addActionListener( e -> showProbaImg() );
 
 		/*
 		 * Deal with channels: the slider and channel labels are only visible if
@@ -377,6 +393,12 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		{
 			btnBrowse.setEnabled( true );
 		}
+	}
+
+	private void showProbaImg()
+	{
+		final ImagePlus proba = previewer.getLastProbabilityImage();
+		proba.show();
 	}
 
 	private void updateClassNames()

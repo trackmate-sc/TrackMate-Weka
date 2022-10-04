@@ -46,6 +46,7 @@ import net.imagej.ImgPlus;
 import net.imagej.axis.Axes;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Pair;
@@ -81,6 +82,15 @@ public class WekaDetectionPreviewer< T extends RealType< T > & NativeType< T > >
 				null,
 				null,
 				null );
+	}
+
+	public ImagePlus getLastProbabilityImage()
+	{
+		final RandomAccessibleInterval< T > img = wekaRunner.getLastOutput();
+		if ( img == null )
+			return null;
+
+		return ImageJFunctions.wrap( img, "Probability map" );
 	}
 
 	@Override
