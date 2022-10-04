@@ -26,16 +26,20 @@ import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASSIFIER_FILE
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASS_INDEX;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_PROBA_THRESHOLD;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.Spot;
-import fiji.plugin.trackmate.SpotCollection;
 import fiji.plugin.trackmate.detection.DetectionUtils;
+import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
+import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.io.IOUtils;
+import fiji.plugin.trackmate.util.DetectionPreview;
 import fiji.plugin.trackmate.util.TMUtils;
 import ij.ImagePlus;
 import net.imagej.ImgPlus;
@@ -44,8 +48,10 @@ import net.imglib2.Interval;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Pair;
+import net.imglib2.util.ValuePair;
 
-public class WekaDetectionPreviewer< T extends RealType< T > & NativeType< T > >
+public class WekaDetectionPreviewer< T extends RealType< T > & NativeType< T > > extends DetectionPreview
 {
 
 	private ImagePlus previousImp;
@@ -60,17 +66,38 @@ public class WekaDetectionPreviewer< T extends RealType< T > & NativeType< T > >
 
 	private int previousChannel;
 
-	public void preview(
+	public WekaDetectionPreviewer(
+			final Model model,
+			final Settings settings,
+			final Supplier< Map< String, Object > > detectionSettingsSupplier,
+			final Supplier< Integer > currentFrameSupplier )
+	{
+		super(
+				model,
+				settings,
+				new WekaDetectorFactory<>(),
+				detectionSettingsSupplier,
+				currentFrameSupplier,
+				null,
+				null,
+				null );
+	}
+
+	@Override
+	protected Pair< Model, Double > runPreviewDetection(
 			final Settings settings,
 			final int frame,
-			final Model model,
-			final Logger logger )
+			final SpotDetectorFactoryBase< ? > detectorFactory,
+			final Map< String, Object > detectorSettings,
+			final String thresholdKey )
 	{
+		final Logger logger = getLogger();
+
 		/*
 		 * Unwrap settings.
 		 */
 
-		final Map< String, Object > dsettings = settings.detectorSettings;
+		final Map< String, Object > dsettings = new HashMap<>( detectorSettings );
 		@SuppressWarnings( "unchecked" )
 		final ImgPlus< T > img = TMUtils.rawWraps( settings.imp );
 		final int channel = ( Integer ) dsettings.get( KEY_TARGET_CHANNEL ) - 1;
@@ -85,7 +112,7 @@ public class WekaDetectionPreviewer< T extends RealType< T > & NativeType< T > >
 		if ( obj == null )
 		{
 			logger.error( "The path to the Weka classifier file is not set." );
-			return;
+			return null;
 		}
 
 		final String classifierFilePath = ( String ) obj;
@@ -93,7 +120,7 @@ public class WekaDetectionPreviewer< T extends RealType< T > & NativeType< T > >
 		if ( !IOUtils.canReadFile( classifierFilePath, errorHolder ) )
 		{
 			logger.error( "Problem with Weka classifier file: " + errorHolder.toString() );
-			return;
+			return null;
 		}
 
 		/*
@@ -130,7 +157,7 @@ public class WekaDetectionPreviewer< T extends RealType< T > & NativeType< T > >
 			if ( !wekaRunner.loadClassifier() )
 			{
 				logger.error( wekaRunner.getErrorMessage() );
-				return;
+				return null;
 			}
 
 			final Interval interval = DetectionUtils.squeeze( TMUtils.getInterval( img, settings ) );
@@ -138,7 +165,7 @@ public class WekaDetectionPreviewer< T extends RealType< T > & NativeType< T > >
 			if ( probabilities == null )
 			{
 				logger.error( "Problem computing probabilities: " + wekaRunner.getErrorMessage() );
-				return;
+				return null;
 			}
 		}
 
@@ -147,23 +174,14 @@ public class WekaDetectionPreviewer< T extends RealType< T > & NativeType< T > >
 		if ( spots == null )
 		{
 			logger.error( "Problem creating spots: " + wekaRunner.getErrorMessage() );
-			return;
+			return null;
 		}
 
-		/*
-		 * Pass results to the model.
-		 */
-
-		// Pass new spot list to model.
+		final Model model = new Model();
 		model.getSpots().put( frame, spots );
-		// Make them visible
-		for ( final Spot spot : spots )
-			spot.putFeature( SpotCollection.VISIBILITY, SpotCollection.ONE );
+		model.getSpots().filter( new FeatureFilter( Spot.QUALITY, probaThreshold, true ) );
 
-		// Generate event for listener to reflect changes.
-		model.setSpots( model.getSpots(), true );
-
-		logger.log( String.format( "Found %d spots in frame %d.", spots.size(), frame + 1 ) );
+		return new ValuePair< Model, Double >( model, Double.NaN );
 	}
 
 	public List< String > getClassNames( final String classifierFilePath, final Logger logger, final boolean is3D )

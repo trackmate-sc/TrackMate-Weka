@@ -26,7 +26,6 @@ import static fiji.plugin.trackmate.gui.Fonts.BIG_FONT;
 import static fiji.plugin.trackmate.gui.Fonts.FONT;
 import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
 import static fiji.plugin.trackmate.gui.Icons.MAGNIFIER_ICON;
-import static fiji.plugin.trackmate.gui.Icons.PREVIEW_ICON;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASSIFIER_FILEPATH;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASS_INDEX;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_PROBA_THRESHOLD;
@@ -61,7 +60,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.scijava.prefs.PrefService;
 
-import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.gui.GuiUtils;
@@ -99,21 +97,18 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 	protected final PrefService prefService;
 
-	private final Settings settings;
+	private final WekaDetectionPreviewer< ? > previewer;
 
-	private final Model model;
-
-	private final WekaDetectionPreviewer< ? > previewer = new WekaDetectionPreviewer<>();
-
-	private final Logger localLogger;
+	private final boolean is3D;
 
 	/**
 	 * Create the panel.
 	 */
 	public WekaDetectorConfigurationPanel( final Settings settings, final Model model )
 	{
-		this.settings = settings;
-		this.model = model;
+		@SuppressWarnings( "rawtypes" )
+		final ImgPlus img = TMUtils.rawWraps( settings.imp );
+		this.is3D = img.dimensionIndex( Axes.Z ) >= 0;
 		this.prefService = TMUtils.getContext().getService( PrefService.class );
 
 		final GridBagLayout gridBagLayout = new GridBagLayout();
@@ -263,33 +258,6 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		add( ftfProbaThreshold, gbcScore );
 
 		/*
-		 * Logger.
-		 */
-
-		final JLabelLogger labelLogger = new JLabelLogger();
-		final GridBagConstraints gbcLabelLogger = new GridBagConstraints();
-		gbcLabelLogger.fill = GridBagConstraints.BOTH;
-		gbcLabelLogger.gridwidth = 3;
-		gbcLabelLogger.gridx = 0;
-		gbcLabelLogger.gridy = 9;
-		add( labelLogger, gbcLabelLogger );
-		this.localLogger = labelLogger.getLogger();
-
-		/*
-		 * Preview.
-		 */
-
-		final JButton btnPreview = new JButton( "Preview", PREVIEW_ICON );
-		btnPreview.setFont( FONT );
-		final GridBagConstraints gbcBtnPreview = new GridBagConstraints();
-		gbcBtnPreview.gridwidth = 1;
-		gbcBtnPreview.anchor = GridBagConstraints.SOUTHEAST;
-		gbcBtnPreview.insets = new Insets( 5, 5, 5, 5 );
-		gbcBtnPreview.gridx = 2;
-		gbcBtnPreview.gridy = 8;
-		add( btnPreview, gbcBtnPreview );
-
-		/*
 		 * Refresh class names.
 		 */
 
@@ -300,14 +268,31 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcBtnClassNames.anchor = GridBagConstraints.SOUTHWEST;
 		gbcBtnClassNames.insets = new Insets( 5, 5, 5, 5 );
 		gbcBtnClassNames.gridx = 0;
-		gbcBtnClassNames.gridy = 8;
+		gbcBtnClassNames.gridy = 7;
 		add( btnClassNames, gbcBtnClassNames );
+
+		/*
+		 * Preview.
+		 */
+
+		final GridBagConstraints gbcBtnPreview = new GridBagConstraints();
+		gbcBtnPreview.gridwidth = 3;
+		gbcBtnPreview.fill = GridBagConstraints.BOTH;
+		gbcBtnPreview.insets = new Insets( 5, 5, 5, 5 );
+		gbcBtnPreview.gridx = 0;
+		gbcBtnPreview.gridy = 8;
+
+		previewer = new WekaDetectionPreviewer<>(
+				model,
+				settings,
+				() -> getSettings(),
+				() -> ( settings.imp.getFrame() - 1 ) );
+		add( previewer.getPanel(), gbcBtnPreview );
 
 		/*
 		 * Listeners and specificities.
 		 */
 
-		btnPreview.addActionListener( e -> preview( settings.imp.getFrame() - 1 ) );
 		btnClassNames.addActionListener( e -> updateClassNames() );
 
 		/*
@@ -375,33 +360,6 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 	public void clean()
 	{}
 
-	private void preview( final int frame )
-	{
-		new Thread( "TrackMate preview detection thread" )
-		{
-			@Override
-			public void run()
-			{
-				final EverythingDisablerAndReenabler enabler = new EverythingDisablerAndReenabler(
-						SwingUtilities.getWindowAncestor( WekaDetectorConfigurationPanel.this ), new Class[] { JLabel.class, JLabelLogger.class } );
-				enabler.disable();
-				try
-				{
-					settings.detectorSettings = getSettings();
-					previewer.preview( settings, frame, model, localLogger );
-				}
-				catch ( final Exception e )
-				{
-					e.printStackTrace();
-				}
-				finally
-				{
-					enabler.reenable();
-				}
-			}
-		}.start();
-	}
-
 	protected void browse()
 	{
 		btnBrowse.setEnabled( false );
@@ -438,10 +396,10 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 					if ( classifierPath == null || classifierPath.isEmpty() )
 						return;
 
-					@SuppressWarnings( "rawtypes" )
-					final ImgPlus img = TMUtils.rawWraps( settings.imp );
-					final boolean is3D = img.dimensionIndex( Axes.Z ) >= 0;
-					final List< String > classNames = previewer.getClassNames( classifierPath, localLogger, is3D );
+					final List< String > classNames = previewer.getClassNames(
+							classifierPath,
+							previewer.getLogger(),
+							is3D );
 
 					// Update GUI.
 					cmbboxClassId.setModel( new DefaultComboBoxModel<>( new Vector<>( classNames ) ) );
