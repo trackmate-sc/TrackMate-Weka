@@ -156,7 +156,7 @@ public class WekaRunner< T extends RealType< T > & NativeType< T > > implements 
 		return output;
 	}
 
-	public List< Spot > getSpotsFromLastProbabilities( final double threshold, final boolean simplify )
+	public List< Spot > getSpotsFromLastProbabilities( final double threshold, final boolean simplify, final double smoothingScale )
 	{
 		errorMessage = null;
 		if ( segmentation == null )
@@ -169,7 +169,7 @@ public class WekaRunner< T extends RealType< T > & NativeType< T > > implements 
 			errorMessage = "Probabilities have not been computed yet.";
 			return null;
 		}
-		return getSpots( lastOutput, lastCalibration, threshold, simplify );
+		return getSpots( lastOutput, lastCalibration, threshold, simplify, smoothingScale );
 	}
 
 	/**
@@ -182,7 +182,7 @@ public class WekaRunner< T extends RealType< T > & NativeType< T > > implements 
 		return lastOutput;
 	}
 
-	public List< Spot > getSpots( final RandomAccessibleInterval< T > proba, final double[] calibration, final double threshold, final boolean simplify )
+	public List< Spot > getSpots( final RandomAccessibleInterval< T > proba, final double[] calibration, final double threshold, final boolean simplify, final double smoothingScale )
 	{
 		return MaskUtils.fromThresholdWithROI(
 				proba,
@@ -190,6 +190,7 @@ public class WekaRunner< T extends RealType< T > & NativeType< T > > implements 
 				calibration,
 				threshold,
 				simplify,
+				smoothingScale,
 				numThreads,
 				proba );
 	}

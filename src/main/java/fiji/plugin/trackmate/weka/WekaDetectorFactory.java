@@ -23,6 +23,7 @@ package fiji.plugin.trackmate.weka;
 
 import static fiji.plugin.trackmate.detection.DetectorKeys.DEFAULT_TARGET_CHANNEL;
 import static fiji.plugin.trackmate.detection.DetectorKeys.KEY_TARGET_CHANNEL;
+import static fiji.plugin.trackmate.detection.ThresholdDetectorFactory.KEY_SMOOTHING_SCALE;
 import static fiji.plugin.trackmate.io.IOUtils.readDoubleAttribute;
 import static fiji.plugin.trackmate.io.IOUtils.readIntegerAttribute;
 import static fiji.plugin.trackmate.io.IOUtils.readStringAttribute;
@@ -133,13 +134,18 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 		final int classIndex = ( Integer ) settings.get( KEY_CLASS_INDEX );
 		final double probaThreshold = ( Double ) settings.get( KEY_PROBA_THRESHOLD );
 		final boolean simplify = true;
+		final Object smoothingObj = settings.get( KEY_SMOOTHING_SCALE );
+		final double smoothingScale = smoothingObj == null
+				? -1.
+				: ( ( Number ) smoothingObj ).doubleValue();
 		final WekaDetector< T > detector = new WekaDetector<>(
 				runner,
 				input,
 				interval,
 				classIndex,
 				probaThreshold,
-				simplify );
+				simplify,
+				smoothingScale );
 		return detector;
 	}
 

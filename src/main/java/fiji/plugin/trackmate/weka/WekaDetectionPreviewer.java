@@ -22,6 +22,7 @@
 package fiji.plugin.trackmate.weka;
 
 import static fiji.plugin.trackmate.detection.DetectorKeys.KEY_TARGET_CHANNEL;
+import static fiji.plugin.trackmate.detection.ThresholdDetectorFactory.KEY_SMOOTHING_SCALE;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASSIFIER_FILEPATH;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASS_INDEX;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_PROBA_THRESHOLD;
@@ -108,13 +109,16 @@ public class WekaDetectionPreviewer< T extends RealType< T > & NativeType< T > >
 		 */
 
 		final Map< String, Object > dsettings = new HashMap<>( detectorSettings );
-		@SuppressWarnings( "unchecked" )
 		final ImgPlus< T > img = TMUtils.rawWraps( settings.imp );
 		final int channel = ( Integer ) dsettings.get( KEY_TARGET_CHANNEL ) - 1;
 		final ImgPlus< T > input = TMUtils.hyperSlice( img, channel, frame );
 		final int classIndex = ( Integer ) dsettings.get( KEY_CLASS_INDEX );
 		final double probaThreshold = ( Double ) dsettings.get( KEY_PROBA_THRESHOLD );
 		final boolean simplify = true;
+		final Object smoothingObj = dsettings.get( KEY_SMOOTHING_SCALE );
+		final double smoothingScale = smoothingObj == null
+				? -1.
+				: ( ( Number ) smoothingObj ).doubleValue();
 
 		final boolean is3D = input.dimensionIndex( Axes.Z ) >= 0;
 		// First test to make sure we can read the classifier file.
@@ -180,7 +184,7 @@ public class WekaDetectionPreviewer< T extends RealType< T > & NativeType< T > >
 		}
 
 		logger.log( "Creating spots from probabilities." );
-		final List< Spot > spots = wekaRunner.getSpotsFromLastProbabilities( probaThreshold, simplify );
+		final List< Spot > spots = wekaRunner.getSpotsFromLastProbabilities( probaThreshold, simplify, smoothingScale );
 		if ( spots == null )
 		{
 			logger.error( "Problem creating spots: " + wekaRunner.getErrorMessage() );

@@ -54,7 +54,6 @@ public class WekaTestDrive
 		final ImagePlus imp = IJ.openImage( targetImagePath );
 		imp.show();
 
-		@SuppressWarnings( "unchecked" )
 		final ImgPlus< T > allChannels = TMUtils.rawWraps( imp );
 		final long targetChannel = 0;
 		final long targetFrame = 0;
@@ -94,7 +93,8 @@ public class WekaTestDrive
 			return;
 		}
 
-		final List< Spot > spots0 = wekaRunner.getSpotsFromLastProbabilities( probaThreshold, simplify );
+		final double smoothingScale = -1.;
+		final List< Spot > spots0 = wekaRunner.getSpotsFromLastProbabilities( probaThreshold, simplify, smoothingScale );
 		if ( spots0 == null )
 		{
 			System.err.println( "Problem creating spots: " + wekaRunner.getErrorMessage() );
@@ -129,7 +129,7 @@ public class WekaTestDrive
 		final long start1 = System.currentTimeMillis();
 
 		final double probaThreshold2 = 0.8;
-		final List< Spot > spots1 = wekaRunner.getSpotsFromLastProbabilities( probaThreshold2, simplify );
+		final List< Spot > spots1 = wekaRunner.getSpotsFromLastProbabilities( probaThreshold2, simplify, smoothingScale );
 
 		final long end1 = System.currentTimeMillis();
 		System.out.println( String.format( "Second run took %.2f seconds to run.", ( end1 - start1 ) / 1000. ) );
