@@ -21,11 +21,6 @@
  */
 package fiji.plugin.trackmate.weka;
 
-import java.io.IOException;
-
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
 import fiji.plugin.trackmate.TrackMatePlugIn;
 import ij.IJ;
 import ij.ImageJ;
@@ -33,12 +28,11 @@ import ij.ImageJ;
 public class TrackMateWeka3DTestDrive
 {
 
-	public static void main( final String[] args ) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
+	public static void main( final String[] args )
 	{
-		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
 		ImageJ.main( args );
-//		final String path = "samples/merged.tif";
-		final String path = "samples/mesh/CElegansMask3D.tif";
+		final String path = "samples/merged.tif";
+//		final String path = "samples/mesh/CElegansMask3D.tif";
 		IJ.openImage( path ).show();
 		new TrackMatePlugIn().run( null );
 	}
