@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -23,6 +23,7 @@ package fiji.plugin.trackmate.weka;
 
 import static fiji.plugin.trackmate.detection.DetectorKeys.DEFAULT_TARGET_CHANNEL;
 import static fiji.plugin.trackmate.detection.DetectorKeys.KEY_TARGET_CHANNEL;
+import static fiji.plugin.trackmate.detection.ThresholdDetectorFactory.KEY_SMOOTHING_SCALE;
 import static fiji.plugin.trackmate.io.IOUtils.readDoubleAttribute;
 import static fiji.plugin.trackmate.io.IOUtils.readIntegerAttribute;
 import static fiji.plugin.trackmate.io.IOUtils.readStringAttribute;
@@ -39,6 +40,7 @@ import java.util.Map;
 import javax.swing.ImageIcon;
 
 import org.jdom2.Element;
+import org.scijava.Priority;
 import org.scijava.plugin.Plugin;
 
 import fiji.plugin.trackmate.Model;
@@ -54,7 +56,7 @@ import net.imglib2.Interval;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
-@Plugin( type = SpotDetectorFactory.class )
+@Plugin( type = SpotDetectorFactory.class, priority = Priority.LOW - 4.1 )
 public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > implements SpotDetectorFactory< T >
 {
 
@@ -92,7 +94,8 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 	public static final String INFO_TEXT = "<html>"
 			+ "This detector relies on the 'Trainable Weka segmentation' plugin to detect objects."
 			+ "<p>"
-			+ "It works for 2D and 3D images, but returns contours only for 2D images."
+			+ "It works for 2D and 3D images, returns contours for 2D images and meshes"
+			+ "for 3D images."
 			+ "<p>"
 			+ "You need to provide the path to a classifier previously trained and saved using the "
 			+ "'Trainable Weka segmentation' plugin. It will classically be a '.model' file. "
@@ -132,13 +135,18 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 		final int classIndex = ( Integer ) settings.get( KEY_CLASS_INDEX );
 		final double probaThreshold = ( Double ) settings.get( KEY_PROBA_THRESHOLD );
 		final boolean simplify = true;
+		final Object smoothingObj = settings.get( KEY_SMOOTHING_SCALE );
+		final double smoothingScale = smoothingObj == null
+				? -1.
+				: ( ( Number ) smoothingObj ).doubleValue();
 		final WekaDetector< T > detector = new WekaDetector<>(
 				runner,
 				input,
 				interval,
 				classIndex,
 				probaThreshold,
-				simplify );
+				simplify,
+				smoothingScale );
 		return detector;
 	}
 

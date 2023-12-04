@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -156,7 +156,7 @@ public class WekaRunner< T extends RealType< T > & NativeType< T > > implements 
 		return output;
 	}
 
-	public List< Spot > getSpotsFromLastProbabilities( final double threshold, final boolean simplify )
+	public List< Spot > getSpotsFromLastProbabilities( final double threshold, final boolean simplify, final double smoothingScale )
 	{
 		errorMessage = null;
 		if ( segmentation == null )
@@ -169,12 +169,12 @@ public class WekaRunner< T extends RealType< T > & NativeType< T > > implements 
 			errorMessage = "Probabilities have not been computed yet.";
 			return null;
 		}
-		return getSpots( lastOutput, lastCalibration, threshold, simplify );
+		return getSpots( lastOutput, lastCalibration, threshold, simplify, smoothingScale );
 	}
 
 	/**
 	 * Exposes the last probability image calculated.
-	 * 
+	 *
 	 * @return the last probability image calculated. May be <code>null</code>
 	 */
 	public RandomAccessibleInterval< T > getLastOutput()
@@ -182,31 +182,17 @@ public class WekaRunner< T extends RealType< T > & NativeType< T > > implements 
 		return lastOutput;
 	}
 
-	public List< Spot > getSpots( final RandomAccessibleInterval< T > proba, final double[] calibration, final double threshold, final boolean simplify )
+	public List< Spot > getSpots( final RandomAccessibleInterval< T > proba, final double[] calibration, final double threshold, final boolean simplify, final double smoothingScale )
 	{
-		final List< Spot > spots;
-		if ( isProcessing3D )
-		{
-			spots = MaskUtils.fromThreshold(
-					proba,
-					proba,
-					calibration,
-					threshold,
-					numThreads,
-					proba );
-		}
-		else
-		{
-			spots = MaskUtils.fromThresholdWithROI(
-					proba,
-					proba,
-					calibration,
-					threshold,
-					simplify,
-					numThreads,
-					proba );
-		}
-		return spots;
+		return MaskUtils.fromThresholdWithROI(
+				proba,
+				proba,
+				calibration,
+				threshold,
+				simplify,
+				smoothingScale,
+				numThreads,
+				proba );
 	}
 
 	private RandomAccessibleInterval< T > deinterleave( final RandomAccessibleInterval< T > proba, final long start, final long step )
