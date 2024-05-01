@@ -31,15 +31,12 @@ import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASSIFIER_FILE
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASS_INDEX;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_PROBA_THRESHOLD;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.URL;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +47,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
@@ -65,6 +61,7 @@ import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.components.ConfigurationPanel;
+import fiji.plugin.trackmate.gui.components.PanelProbaThreshold;
 import fiji.plugin.trackmate.gui.components.PanelSmoothContour;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.FileChooser;
@@ -80,8 +77,6 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 	private static final long serialVersionUID = 1L;
 
-	private static final NumberFormat THRESHOLD_FORMAT = new DecimalFormat( "#.##" );
-
 	protected static final ImageIcon ICON = new ImageIcon( getResource( "images/TrackMateWeka-logo-100px.png" ) );
 
 	private static final String TITLE = WekaDetectorFactory.NAME;
@@ -96,8 +91,6 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 	private final JButton btnBrowse;
 
-	private final JFormattedTextField ftfProbaThreshold;
-
 	protected final PrefService prefService;
 
 	private final WekaDetectionPreviewer< ? > previewer;
@@ -105,6 +98,8 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 	private final boolean is3D;
 
 	private final PanelSmoothContour smoothingPanel;
+
+	private final PanelProbaThreshold probaThresholdPanel;
 
 	/**
 	 * Create the panel.
@@ -242,25 +237,15 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		 * Proba threshold.
 		 */
 
-		final JLabel lblScoreTreshold = new JLabel( "Threshold on probability:" );
-		lblScoreTreshold.setFont( SMALL_FONT );
-		final GridBagConstraints gbcLblScoreTreshold = new GridBagConstraints();
-		gbcLblScoreTreshold.anchor = GridBagConstraints.EAST;
-		gbcLblScoreTreshold.insets = new Insets( 5, 5, 5, 5 );
-		gbcLblScoreTreshold.gridx = 0;
-		gbcLblScoreTreshold.gridy = 6;
-		add( lblScoreTreshold, gbcLblScoreTreshold );
-
-		ftfProbaThreshold = new JFormattedTextField( THRESHOLD_FORMAT );
-		ftfProbaThreshold.setFont( SMALL_FONT );
-		ftfProbaThreshold.setMinimumSize( new Dimension( 60, 20 ) );
-		ftfProbaThreshold.setHorizontalAlignment( SwingConstants.CENTER );
+		probaThresholdPanel = new PanelProbaThreshold( 0.5 );
 		final GridBagConstraints gbcScore = new GridBagConstraints();
 		gbcScore.fill = GridBagConstraints.HORIZONTAL;
+		gbcScore.anchor = GridBagConstraints.NORTHWEST;
 		gbcScore.insets = new Insets( 5, 5, 5, 5 );
-		gbcScore.gridx = 1;
+		gbcScore.gridx = 0;
 		gbcScore.gridy = 6;
-		add( ftfProbaThreshold, gbcScore );
+		gbcScore.gridwidth = 3;
+		add( probaThresholdPanel, gbcScore );
 
 		/*
 		 * Smooth output.
@@ -373,7 +358,7 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		final int classID = cmbboxClassId.getSelectedIndex();
 		settings.put( KEY_CLASS_INDEX, classID );
 
-		final double probaThreshold = ( ( Number ) ftfProbaThreshold.getValue() ).doubleValue();
+		final double probaThreshold = probaThresholdPanel.getThreshold();
 		settings.put( KEY_PROBA_THRESHOLD, probaThreshold );
 
 		final double scale = smoothingPanel.getScale();
@@ -390,7 +375,11 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		modelFileTextField.setText( filePath );
 		cmbboxClassId.setSelectedIndex( ( Integer ) settings.get( KEY_CLASS_INDEX ) );
 		sliderChannel.setValue( ( Integer ) settings.get( KEY_TARGET_CHANNEL ) );
-		ftfProbaThreshold.setValue( settings.get( KEY_PROBA_THRESHOLD ) );
+
+		final Object thresholdObj = settings.get( KEY_PROBA_THRESHOLD );
+		final double threshold = thresholdObj == null ? -1. : ( ( Number ) thresholdObj ).doubleValue();
+		probaThresholdPanel.setThreshold( threshold );
+
 		final Object scaleObj = settings.get( KEY_SMOOTHING_SCALE );
 		final double scale = scaleObj == null ? -1. : ( ( Number ) scaleObj ).doubleValue();
 		smoothingPanel.setScale( scale );
