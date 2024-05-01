@@ -22,6 +22,7 @@
 package fiji.plugin.trackmate.weka;
 
 import static fiji.plugin.trackmate.detection.DetectorKeys.KEY_TARGET_CHANNEL;
+import static fiji.plugin.trackmate.detection.ThresholdDetectorFactory.KEY_SMOOTHING_SCALE;
 import static fiji.plugin.trackmate.gui.Fonts.BIG_FONT;
 import static fiji.plugin.trackmate.gui.Fonts.FONT;
 import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
@@ -64,6 +65,7 @@ import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.components.ConfigurationPanel;
+import fiji.plugin.trackmate.gui.components.PanelSmoothContour;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.FileChooser;
 import fiji.plugin.trackmate.util.FileChooser.DialogType;
@@ -101,6 +103,8 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 	private final WekaDetectionPreviewer< ? > previewer;
 
 	private final boolean is3D;
+
+	private final PanelSmoothContour smoothingPanel;
 
 	/**
 	 * Create the panel.
@@ -259,6 +263,20 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		add( ftfProbaThreshold, gbcScore );
 
 		/*
+		 * Smooth output.
+		 */
+
+		smoothingPanel = new PanelSmoothContour( -1., model.getSpaceUnits() );
+		final GridBagConstraints gbSmoothPanel = new GridBagConstraints();
+		gbSmoothPanel.anchor = GridBagConstraints.NORTHWEST;
+		gbSmoothPanel.insets = new Insets( 5, 5, 5, 5 );
+		gbSmoothPanel.gridwidth = 3;
+		gbSmoothPanel.gridx = 0;
+		gbSmoothPanel.gridy = 7;
+		gbSmoothPanel.fill = GridBagConstraints.HORIZONTAL;
+		this.add( smoothingPanel, gbSmoothPanel );
+
+		/*
 		 * Refresh class names.
 		 */
 
@@ -269,7 +287,7 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcBtnClassNames.anchor = GridBagConstraints.SOUTHWEST;
 		gbcBtnClassNames.insets = new Insets( 5, 5, 5, 5 );
 		gbcBtnClassNames.gridx = 0;
-		gbcBtnClassNames.gridy = 7;
+		gbcBtnClassNames.gridy = 8;
 		add( btnClassNames, gbcBtnClassNames );
 
 		/*
@@ -283,7 +301,7 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcBtnLastProba.anchor = GridBagConstraints.SOUTHEAST;
 		gbcBtnLastProba.insets = new Insets( 5, 5, 5, 5 );
 		gbcBtnLastProba.gridx = 1;
-		gbcBtnLastProba.gridy = 7;
+		gbcBtnLastProba.gridy = 8;
 		add( btnLastProba, gbcBtnLastProba );
 
 		/*
@@ -295,7 +313,7 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcBtnPreview.fill = GridBagConstraints.BOTH;
 		gbcBtnPreview.insets = new Insets( 5, 5, 5, 5 );
 		gbcBtnPreview.gridx = 0;
-		gbcBtnPreview.gridy = 8;
+		gbcBtnPreview.gridy = 9;
 
 		previewer = new WekaDetectionPreviewer<>(
 				model,
@@ -357,6 +375,9 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 		final double probaThreshold = ( ( Number ) ftfProbaThreshold.getValue() ).doubleValue();
 		settings.put( KEY_PROBA_THRESHOLD, probaThreshold );
+
+		final double scale = smoothingPanel.getScale();
+		settings.put( KEY_SMOOTHING_SCALE, scale );
 		return settings;
 	}
 
@@ -370,6 +391,9 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		cmbboxClassId.setSelectedIndex( ( Integer ) settings.get( KEY_CLASS_INDEX ) );
 		sliderChannel.setValue( ( Integer ) settings.get( KEY_TARGET_CHANNEL ) );
 		ftfProbaThreshold.setValue( settings.get( KEY_PROBA_THRESHOLD ) );
+		final Object scaleObj = settings.get( KEY_SMOOTHING_SCALE );
+		final double scale = scaleObj == null ? -1. : ( ( Number ) scaleObj ).doubleValue();
+		smoothingPanel.setScale( scale );
 	}
 
 	@Override
