@@ -131,7 +131,6 @@ public class WekaRunner< T extends RealType< T > & NativeType< T > > implements 
 		final ImagePlus probas = segmentation.applyClassifier( vimp, numThreads, true );
 
 		// Convert to Img and extract desired class.
-		@SuppressWarnings( "unchecked" )
 		final ImgPlus< T > probaImp = TMUtils.rawWraps( probas );
 		final ImgPlus< T > classProba = TMUtils.hyperSlice( probaImp, classId, 0 );
 

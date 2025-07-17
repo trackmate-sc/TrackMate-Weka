@@ -22,6 +22,7 @@
 package fiji.plugin.trackmate.weka;
 
 import fiji.plugin.trackmate.TrackMatePlugIn;
+import fiji.plugin.trackmate.gui.GuiUtils;
 import ij.IJ;
 import ij.ImageJ;
 
@@ -30,6 +31,7 @@ public class TrackMateWekaTestDrive
 
 	public static void main( final String[] args )
 	{
+		GuiUtils.setSystemLookAndFeel();
 		ImageJ.main( args );
 		final String path = "samples/MAX_Merged.tif";
 		IJ.openImage( path ).show();
