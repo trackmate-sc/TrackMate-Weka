@@ -90,10 +90,6 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 			+ "also cite the Weka IJ paper: <a href=\"https://doi.org/10.1093/bioinformatics/btx180\">Arganda-Carreras, I.; Kaynig, V. & Rueden, C. et al. (2017), "
 			+ "'Trainable Weka Segmentation: a machine learning tool for microscopy pixel classification.', "
 			+ "Bioinformatics (Oxford Univ Press) 33 (15).</a> "
-			+ "<p>"
-			+ "Documentation for this module "
-			+ "<a href=\"https://imagej.net/plugins/trackmate/trackmate-weka\">on the ImageJ Wiki</a>."
-			+ "<p>"
 			+ "</html>";
 
 	/*
