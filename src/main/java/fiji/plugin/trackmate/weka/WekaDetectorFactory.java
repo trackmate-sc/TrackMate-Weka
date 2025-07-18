@@ -80,7 +80,7 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 
 	public static final String DOC_URL = "https://imagej.net/plugins/trackmate/detectors/trackmate-weka";
 
-	public static final ImageIcon ICON = new ImageIcon( GuiUtils.getResource( "images/TrackMateWeka-logo-100px.png", WekaDetectorFactory.class ) );
+	public static final ImageIcon ICON = new ImageIcon( GuiUtils.getResource( "images/TrackMateWeka-logo-64px.png", WekaDetectorFactory.class ) );
 
 	/** An html information text. */
 	public static final String INFO_TEXT = "<html>"

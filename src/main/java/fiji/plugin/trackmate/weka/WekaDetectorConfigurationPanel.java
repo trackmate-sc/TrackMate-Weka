@@ -111,9 +111,8 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 144, 0, 32 };
-		gridBagLayout.rowHeights = new int[] { 0, 84, 0, 27, 0, 0, 0, 0, 37, 23 };
+		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 27, 0, 0, 0, 0, 150 };
 		gridBagLayout.columnWeights = new double[] { 0.0, 1.0, 0.0 };
-		gridBagLayout.rowWeights = new double[] { 0., 1., 0., 0., 0., 0., 0., 0., 0., 0. };
 		setLayout( gridBagLayout );
 
 		final JLabel lblDetector = new JLabel( TITLE, ICON, JLabel.RIGHT );
@@ -137,7 +136,13 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcLblHelptext.insets = new Insets( 5, 10, 5, 10 );
 		gbcLblHelptext.gridx = 0;
 		gbcLblHelptext.gridy = 1;
-		add( GuiUtils.textInScrollPanel( GuiUtils.infoDisplay( WekaDetectorFactory.INFO_TEXT ) ), gbcLblHelptext );
+		gbcLblHelptext.weighty = 1.;
+		add( GuiUtils.textInScrollPanel( GuiUtils.infoDisplay(
+				"<html>Online documentation: <br/>"
+						+ "<a href='" + WekaDetectorFactory.DOC_URL + "'>"
+						+ WekaDetectorFactory.DOC_URL
+						+ "</a></html>" ) ),
+				gbcLblHelptext );
 
 		/*
 		 * Channel selector.
