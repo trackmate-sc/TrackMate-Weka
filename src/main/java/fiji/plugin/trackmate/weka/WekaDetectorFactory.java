@@ -27,12 +27,15 @@ import static fiji.plugin.trackmate.detection.DetectorKeys.KEY_TARGET_CHANNEL;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.ImageIcon;
+
 import org.scijava.plugin.Plugin;
 
 import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.detection.SpotDetector;
 import fiji.plugin.trackmate.detection.SpotDetectorFactory;
+import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.components.ConfigurationPanel;
 import fiji.plugin.trackmate.io.IOUtils;
 import fiji.plugin.trackmate.util.TMUtils;
@@ -76,6 +79,8 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 	public static final String NAME = "Weka detector";
 
 	public static final String DOC_URL = "https://imagej.net/plugins/trackmate/detectors/trackmate-weka";
+
+	public static final ImageIcon ICON = new ImageIcon( GuiUtils.getResource( "images/TrackMateWeka-logo-100px.png", WekaDetectorFactory.class ) );
 
 	/** An html information text. */
 	public static final String INFO_TEXT = "<html>"
@@ -173,6 +178,12 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 		settings.put( KEY_PROBA_THRESHOLD, DEFAULT_PROBA_THRESHOLD );
 		settings.put( KEY_CLASSIFIER_FILEPATH, "" );
 		return settings;
+	}
+
+	@Override
+	public ImageIcon getIcon()
+	{
+		return ICON;
 	}
 
 	@Override

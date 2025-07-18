@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -26,6 +26,7 @@ import static fiji.plugin.trackmate.gui.Fonts.BIG_FONT;
 import static fiji.plugin.trackmate.gui.Fonts.FONT;
 import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
 import static fiji.plugin.trackmate.gui.Icons.MAGNIFIER_ICON;
+import static fiji.plugin.trackmate.weka.WekaDetectorFactory.ICON;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASSIFIER_FILEPATH;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASS_INDEX;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_PROBA_THRESHOLD;
@@ -36,7 +37,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -46,7 +46,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
@@ -79,8 +78,6 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 	private static final long serialVersionUID = 1L;
 
 	private static final NumberFormat THRESHOLD_FORMAT = new DecimalFormat( "#.##" );
-
-	protected static final ImageIcon ICON = new ImageIcon( getResource( "images/TrackMateWeka-logo-100px.png" ) );
 
 	private static final String TITLE = WekaDetectorFactory.NAME;
 
@@ -432,10 +429,5 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 				}
 			}
 		}.start();
-	}
-
-	protected static URL getResource( final String name )
-	{
-		return WekaDetectorFactory.class.getClassLoader().getResource( name );
 	}
 }
