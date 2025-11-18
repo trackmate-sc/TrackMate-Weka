@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -26,6 +26,7 @@ import static fiji.plugin.trackmate.gui.Fonts.BIG_FONT;
 import static fiji.plugin.trackmate.gui.Fonts.FONT;
 import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
 import static fiji.plugin.trackmate.gui.Icons.MAGNIFIER_ICON;
+import static fiji.plugin.trackmate.weka.WekaDetectorFactory.ICON;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASSIFIER_FILEPATH;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASS_INDEX;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_PROBA_THRESHOLD;
@@ -36,7 +37,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -46,7 +46,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
@@ -80,8 +79,6 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 	private static final NumberFormat THRESHOLD_FORMAT = new DecimalFormat( "#.##" );
 
-	protected static final ImageIcon ICON = new ImageIcon( getResource( "images/TrackMateWeka-logo-100px.png" ) );
-
 	private static final String TITLE = WekaDetectorFactory.NAME;
 
 	private static final FileFilter fileFilter = new FileNameExtensionFilter( "Weka classifier files.", "model" );
@@ -114,9 +111,8 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 144, 0, 32 };
-		gridBagLayout.rowHeights = new int[] { 0, 84, 0, 27, 0, 0, 0, 0, 37, 23 };
+		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 27, 0, 0, 0, 0, 150 };
 		gridBagLayout.columnWeights = new double[] { 0.0, 1.0, 0.0 };
-		gridBagLayout.rowWeights = new double[] { 0., 1., 0., 0., 0., 0., 0., 0., 0., 0. };
 		setLayout( gridBagLayout );
 
 		final JLabel lblDetector = new JLabel( TITLE, ICON, JLabel.RIGHT );
@@ -140,7 +136,13 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcLblHelptext.insets = new Insets( 5, 10, 5, 10 );
 		gbcLblHelptext.gridx = 0;
 		gbcLblHelptext.gridy = 1;
-		add( GuiUtils.textInScrollPanel( GuiUtils.infoDisplay( WekaDetectorFactory.INFO_TEXT ) ), gbcLblHelptext );
+		gbcLblHelptext.weighty = 1.;
+		add( GuiUtils.textInScrollPanel( GuiUtils.infoDisplay(
+				"<html>Online documentation: <br/>"
+						+ "<a href='" + WekaDetectorFactory.DOC_URL + "'>"
+						+ WekaDetectorFactory.DOC_URL
+						+ "</a></html>" ) ),
+				gbcLblHelptext );
 
 		/*
 		 * Channel selector.
@@ -432,10 +434,5 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 				}
 			}
 		}.start();
-	}
-
-	protected static URL getResource( final String name )
-	{
-		return WekaDetectorFactory.class.getClassLoader().getResource( name );
 	}
 }
