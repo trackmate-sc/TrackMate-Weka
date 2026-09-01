@@ -182,7 +182,7 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 	@Override
 	public ImageIcon getIcon()
 	{
-		return null;
+		return WekaDetectorConfigurationPanel.ICON;
 	}
 
 	@Override

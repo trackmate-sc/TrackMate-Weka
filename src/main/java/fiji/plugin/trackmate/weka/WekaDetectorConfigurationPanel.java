@@ -77,7 +77,9 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 	private static final long serialVersionUID = 1L;
 
-	protected static final ImageIcon ICON = new ImageIcon( getResource( "images/TrackMateWeka-logo-100px.png" ) );
+	protected static final ImageIcon ICON = GuiUtils.scaleImage(
+			new ImageIcon( getResource( "images/TrackMateWeka-logo-100px.png" ) ),
+			64, 64 );
 
 	private static final String TITLE = WekaDetectorFactory.NAME;
 
