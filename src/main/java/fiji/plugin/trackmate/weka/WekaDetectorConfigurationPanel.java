@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -22,23 +22,20 @@
 package fiji.plugin.trackmate.weka;
 
 import static fiji.plugin.trackmate.detection.DetectorKeys.KEY_TARGET_CHANNEL;
+import static fiji.plugin.trackmate.detection.ThresholdDetectorFactory.KEY_SMOOTHING_SCALE;
 import static fiji.plugin.trackmate.gui.Fonts.BIG_FONT;
 import static fiji.plugin.trackmate.gui.Fonts.FONT;
 import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
 import static fiji.plugin.trackmate.gui.Icons.MAGNIFIER_ICON;
-import static fiji.plugin.trackmate.weka.WekaDetectorFactory.ICON;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASSIFIER_FILEPATH;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_CLASS_INDEX;
 import static fiji.plugin.trackmate.weka.WekaDetectorFactory.KEY_PROBA_THRESHOLD;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +45,6 @@ import java.util.Vector;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
@@ -63,6 +59,8 @@ import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.components.ConfigurationPanel;
+import fiji.plugin.trackmate.gui.components.PanelProbaThreshold;
+import fiji.plugin.trackmate.gui.components.PanelSmoothContour;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.FileChooser;
 import fiji.plugin.trackmate.util.FileChooser.DialogType;
@@ -77,8 +75,6 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 	private static final long serialVersionUID = 1L;
 
-	private static final NumberFormat THRESHOLD_FORMAT = new DecimalFormat( "#.##" );
-
 	private static final String TITLE = WekaDetectorFactory.NAME;
 
 	private static final FileFilter fileFilter = new FileNameExtensionFilter( "Weka classifier files.", "model" );
@@ -91,13 +87,15 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 	private final JButton btnBrowse;
 
-	private final JFormattedTextField ftfProbaThreshold;
-
 	protected final PrefService prefService;
 
 	private final WekaDetectionPreviewer< ? > previewer;
 
 	private final boolean is3D;
+
+	private final PanelSmoothContour smoothingPanel;
+
+	private final PanelProbaThreshold probaThresholdPanel;
 
 	/**
 	 * Create the panel.
@@ -109,13 +107,16 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		this.is3D = img.dimensionIndex( Axes.Z ) >= 0;
 		this.prefService = TMUtils.getContext().getService( PrefService.class );
 
+		int gridy = 0;
+
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 144, 0, 32 };
-		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 27, 0, 0, 0, 0, 150 };
 		gridBagLayout.columnWeights = new double[] { 0.0, 1.0, 0.0 };
+		gridBagLayout.rowHeights = new int[] { 0, 60, 0, 0, 0, 0, 0, 0, 0 };
+		gridBagLayout.rowWeights = new double[] { 0., 0., 0., 0., 0., 0., 0., 0., 0., 1. };
 		setLayout( gridBagLayout );
 
-		final JLabel lblDetector = new JLabel( TITLE, ICON, JLabel.RIGHT );
+		final JLabel lblDetector = new JLabel( TITLE, WekaDetectorFactory.ICON, JLabel.RIGHT );
 		lblDetector.setFont( BIG_FONT );
 		lblDetector.setHorizontalAlignment( SwingConstants.CENTER );
 		final GridBagConstraints gbcLblDetector = new GridBagConstraints();
@@ -123,12 +124,15 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcLblDetector.insets = new Insets( 5, 5, 5, 0 );
 		gbcLblDetector.fill = GridBagConstraints.HORIZONTAL;
 		gbcLblDetector.gridx = 0;
-		gbcLblDetector.gridy = 0;
+		gbcLblDetector.gridy = gridy;
 		add( lblDetector, gbcLblDetector );
 
 		/*
 		 * Help text.
 		 */
+
+		gridy++;
+
 		final GridBagConstraints gbcLblHelptext = new GridBagConstraints();
 		gbcLblHelptext.anchor = GridBagConstraints.NORTH;
 		gbcLblHelptext.fill = GridBagConstraints.BOTH;
@@ -136,7 +140,6 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcLblHelptext.insets = new Insets( 5, 10, 5, 10 );
 		gbcLblHelptext.gridx = 0;
 		gbcLblHelptext.gridy = 1;
-		gbcLblHelptext.weighty = 1.;
 		add( GuiUtils.textInScrollPanel( GuiUtils.infoDisplay(
 				"<html>Online documentation: <br/>"
 						+ "<a href='" + WekaDetectorFactory.DOC_URL + "'>"
@@ -148,13 +151,15 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		 * Channel selector.
 		 */
 
+		gridy++;
+
 		final JLabel lblSegmentInChannel = new JLabel( "Segment in channel:" );
 		lblSegmentInChannel.setFont( SMALL_FONT );
 		final GridBagConstraints gbcLblSegmentInChannel = new GridBagConstraints();
 		gbcLblSegmentInChannel.anchor = GridBagConstraints.EAST;
 		gbcLblSegmentInChannel.insets = new Insets( 5, 5, 5, 5 );
 		gbcLblSegmentInChannel.gridx = 0;
-		gbcLblSegmentInChannel.gridy = 2;
+		gbcLblSegmentInChannel.gridy = gridy;
 		add( lblSegmentInChannel, gbcLblSegmentInChannel );
 
 		sliderChannel = new JSlider();
@@ -162,7 +167,7 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcSliderChannel.fill = GridBagConstraints.HORIZONTAL;
 		gbcSliderChannel.insets = new Insets( 5, 5, 5, 5 );
 		gbcSliderChannel.gridx = 1;
-		gbcSliderChannel.gridy = 2;
+		gbcSliderChannel.gridy = gridy;
 		add( sliderChannel, gbcSliderChannel );
 
 		final JLabel labelChannel = new JLabel( "1" );
@@ -171,7 +176,7 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		final GridBagConstraints gbcLabelChannel = new GridBagConstraints();
 		gbcLabelChannel.insets = new Insets( 5, 5, 5, 0 );
 		gbcLabelChannel.gridx = 2;
-		gbcLabelChannel.gridy = 2;
+		gbcLabelChannel.gridy = gridy;
 		add( labelChannel, gbcLabelChannel );
 
 		sliderChannel.addChangeListener( l -> labelChannel.setText( "" + sliderChannel.getValue() ) );
@@ -180,13 +185,15 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		 * Model file.
 		 */
 
+		gridy++;
+
 		final JLabel lblCusstomModelFile = new JLabel( "Weka model file:" );
 		lblCusstomModelFile.setFont( FONT );
 		final GridBagConstraints gbcLblCusstomModelFile = new GridBagConstraints();
 		gbcLblCusstomModelFile.anchor = GridBagConstraints.SOUTHWEST;
 		gbcLblCusstomModelFile.insets = new Insets( 0, 5, 5, 5 );
 		gbcLblCusstomModelFile.gridx = 0;
-		gbcLblCusstomModelFile.gridy = 3;
+		gbcLblCusstomModelFile.gridy = gridy;
 		add( lblCusstomModelFile, gbcLblCusstomModelFile );
 
 		btnBrowse = new JButton( "Browse" );
@@ -196,8 +203,10 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcBtnBrowse.anchor = GridBagConstraints.SOUTHEAST;
 		gbcBtnBrowse.gridwidth = 2;
 		gbcBtnBrowse.gridx = 1;
-		gbcBtnBrowse.gridy = 3;
+		gbcBtnBrowse.gridy = gridy;
 		add( btnBrowse, gbcBtnBrowse );
+
+		gridy++;
 
 		modelFileTextField = new JTextField( "" );
 		modelFileTextField.setFont( SMALL_FONT );
@@ -206,7 +215,7 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcTextField.insets = new Insets( 0, 5, 5, 5 );
 		gbcTextField.fill = GridBagConstraints.BOTH;
 		gbcTextField.gridx = 0;
-		gbcTextField.gridy = 4;
+		gbcTextField.gridy = gridy;
 		add( modelFileTextField, gbcTextField );
 		modelFileTextField.setColumns( 10 );
 
@@ -214,13 +223,15 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		 * Class index.
 		 */
 
+		gridy++;
+
 		final JLabel lblClassId = new JLabel( "Target class:" );
 		lblClassId.setFont( SMALL_FONT );
 		final GridBagConstraints gbcLblOverlapThreshold = new GridBagConstraints();
 		gbcLblOverlapThreshold.anchor = GridBagConstraints.EAST;
 		gbcLblOverlapThreshold.insets = new Insets( 5, 5, 5, 5 );
 		gbcLblOverlapThreshold.gridx = 0;
-		gbcLblOverlapThreshold.gridy = 5;
+		gbcLblOverlapThreshold.gridy = gridy;
 		add( lblClassId, gbcLblOverlapThreshold );
 
 		// For now we simply put a list of dummy class names.
@@ -233,36 +244,43 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcSliderClassId.fill = GridBagConstraints.HORIZONTAL;
 		gbcSliderClassId.insets = new Insets( 0, 0, 5, 5 );
 		gbcSliderClassId.gridx = 1;
-		gbcSliderClassId.gridy = 5;
+		gbcSliderClassId.gridy = gridy;
 		add( cmbboxClassId, gbcSliderClassId );
 
 		/*
 		 * Proba threshold.
 		 */
 
-		final JLabel lblScoreTreshold = new JLabel( "Threshold on probability:" );
-		lblScoreTreshold.setFont( SMALL_FONT );
-		final GridBagConstraints gbcLblScoreTreshold = new GridBagConstraints();
-		gbcLblScoreTreshold.anchor = GridBagConstraints.EAST;
-		gbcLblScoreTreshold.insets = new Insets( 5, 5, 5, 5 );
-		gbcLblScoreTreshold.gridx = 0;
-		gbcLblScoreTreshold.gridy = 6;
-		add( lblScoreTreshold, gbcLblScoreTreshold );
-
-		ftfProbaThreshold = new JFormattedTextField( THRESHOLD_FORMAT );
-		ftfProbaThreshold.setFont( SMALL_FONT );
-		ftfProbaThreshold.setMinimumSize( new Dimension( 60, 20 ) );
-		ftfProbaThreshold.setHorizontalAlignment( SwingConstants.CENTER );
+		gridy++;
+		probaThresholdPanel = new PanelProbaThreshold( 0.5 );
 		final GridBagConstraints gbcScore = new GridBagConstraints();
 		gbcScore.fill = GridBagConstraints.HORIZONTAL;
+		gbcScore.anchor = GridBagConstraints.NORTHWEST;
 		gbcScore.insets = new Insets( 5, 5, 5, 5 );
-		gbcScore.gridx = 1;
-		gbcScore.gridy = 6;
-		add( ftfProbaThreshold, gbcScore );
+		gbcScore.gridy = gridy;
+		gbcScore.gridwidth = 3;
+		add( probaThresholdPanel, gbcScore );
+
+		/*
+		 * Smooth output.
+		 */
+
+		gridy++;
+		smoothingPanel = new PanelSmoothContour( -1., model.getSpaceUnits() );
+		final GridBagConstraints gbSmoothPanel = new GridBagConstraints();
+		gbSmoothPanel.anchor = GridBagConstraints.NORTHWEST;
+		gbSmoothPanel.insets = new Insets( 5, 5, 5, 5 );
+		gbSmoothPanel.gridwidth = 3;
+		gbSmoothPanel.gridx = 0;
+		gbSmoothPanel.gridy = gridy;
+		gbSmoothPanel.fill = GridBagConstraints.HORIZONTAL;
+		this.add( smoothingPanel, gbSmoothPanel );
 
 		/*
 		 * Refresh class names.
 		 */
+
+		gridy++;
 
 		final JButton btnClassNames = new JButton( "Refresh class names", MAGNIFIER_ICON );
 		btnClassNames.setFont( FONT );
@@ -271,7 +289,7 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcBtnClassNames.anchor = GridBagConstraints.SOUTHWEST;
 		gbcBtnClassNames.insets = new Insets( 5, 5, 5, 5 );
 		gbcBtnClassNames.gridx = 0;
-		gbcBtnClassNames.gridy = 7;
+		gbcBtnClassNames.gridy = gridy;
 		add( btnClassNames, gbcBtnClassNames );
 
 		/*
@@ -285,19 +303,21 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcBtnLastProba.anchor = GridBagConstraints.SOUTHEAST;
 		gbcBtnLastProba.insets = new Insets( 5, 5, 5, 5 );
 		gbcBtnLastProba.gridx = 1;
-		gbcBtnLastProba.gridy = 7;
+		gbcBtnLastProba.gridy = gridy;
 		add( btnLastProba, gbcBtnLastProba );
 
 		/*
 		 * Preview.
 		 */
 
+		gridy++;
+
 		final GridBagConstraints gbcBtnPreview = new GridBagConstraints();
 		gbcBtnPreview.gridwidth = 3;
 		gbcBtnPreview.fill = GridBagConstraints.BOTH;
 		gbcBtnPreview.insets = new Insets( 5, 5, 5, 5 );
 		gbcBtnPreview.gridx = 0;
-		gbcBtnPreview.gridy = 8;
+		gbcBtnPreview.gridy = gridy;
 
 		previewer = new WekaDetectionPreviewer<>(
 				model,
@@ -357,8 +377,11 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		final int classID = cmbboxClassId.getSelectedIndex();
 		settings.put( KEY_CLASS_INDEX, classID );
 
-		final double probaThreshold = ( ( Number ) ftfProbaThreshold.getValue() ).doubleValue();
+		final double probaThreshold = probaThresholdPanel.getThreshold();
 		settings.put( KEY_PROBA_THRESHOLD, probaThreshold );
+
+		final double scale = smoothingPanel.getScale();
+		settings.put( KEY_SMOOTHING_SCALE, scale );
 		return settings;
 	}
 
@@ -371,7 +394,14 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		modelFileTextField.setText( filePath );
 		cmbboxClassId.setSelectedIndex( ( Integer ) settings.get( KEY_CLASS_INDEX ) );
 		sliderChannel.setValue( ( Integer ) settings.get( KEY_TARGET_CHANNEL ) );
-		ftfProbaThreshold.setValue( settings.get( KEY_PROBA_THRESHOLD ) );
+
+		final Object thresholdObj = settings.get( KEY_PROBA_THRESHOLD );
+		final double threshold = thresholdObj == null ? -1. : ( ( Number ) thresholdObj ).doubleValue();
+		probaThresholdPanel.setThreshold( threshold );
+
+		final Object scaleObj = settings.get( KEY_SMOOTHING_SCALE );
+		final double scale = scaleObj == null ? -1. : ( ( Number ) scaleObj ).doubleValue();
+		smoothingPanel.setScale( scale );
 	}
 
 	@Override

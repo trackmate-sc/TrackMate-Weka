@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -24,9 +24,10 @@ package fiji.plugin.trackmate.weka;
 import java.util.List;
 
 import fiji.plugin.trackmate.Model;
-import fiji.plugin.trackmate.SelectionModel;
+import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.SpotCollection;
+import fiji.plugin.trackmate.gui.GuiModel;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings.TrackMateObject;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettingsIO;
@@ -47,14 +48,13 @@ public class WekaTestDrive
 
 	public static < T extends RealType< T > & NativeType< T > > void main( final String[] args )
 	{
-		final String classifierPath = "/Users/tinevez/Projects/CCharendoff/Data/jyclassifier.model";
-		final String targetImagePath = "/Users/tinevez/Projects/CCharendoff/Data/crop-2tp.tif";
+		final String classifierPath = "samples/classifier.model";
+		final String targetImagePath = "samples/BECs CTRL 100x paxillin gfp - Position 3_XY1520360652_Z0_T000_C0.tif";
 
 		ImageJ.main( args );
 		final ImagePlus imp = IJ.openImage( targetImagePath );
 		imp.show();
 
-		@SuppressWarnings( "unchecked" )
 		final ImgPlus< T > allChannels = TMUtils.rawWraps( imp );
 		final long targetChannel = 0;
 		final long targetFrame = 0;
@@ -62,7 +62,7 @@ public class WekaTestDrive
 
 		final Interval interval = input;
 		// Intervals.createMinSize( 464, 82, 325, 233 );
-		final int classId = 0;
+		final int classId = 1;
 		final double probaThreshold = 0.5;
 		final int numThreads = Runtime.getRuntime().availableProcessors();
 		final boolean simplify = true;
@@ -94,7 +94,8 @@ public class WekaTestDrive
 			return;
 		}
 
-		final List< Spot > spots0 = wekaRunner.getSpotsFromLastProbabilities( probaThreshold, simplify );
+		final double smoothingScale = -1.;
+		final List< Spot > spots0 = wekaRunner.getSpotsFromLastProbabilities( probaThreshold, simplify, smoothingScale );
 		if ( spots0 == null )
 		{
 			System.err.println( "Problem creating spots: " + wekaRunner.getErrorMessage() );
@@ -119,8 +120,9 @@ public class WekaTestDrive
 		final DisplaySettings ds = DisplaySettingsIO.readUserDefault();
 		ds.setSpotColorBy( TrackMateObject.SPOTS, Spot.QUALITY );
 		ds.setSpotMinMax( 0., 1. );
-		final HyperStackDisplayer displayer = new HyperStackDisplayer( model, new SelectionModel( model ), imp, ds );
-		displayer.render();
+
+		final GuiModel guiModel = new GuiModel( model, new Settings( imp ), ds );
+		final HyperStackDisplayer displayer = guiModel.getWindowManager().createHyperStackDisplayer();
 
 		/*
 		 * Redo analysis with another threshold.
@@ -129,7 +131,7 @@ public class WekaTestDrive
 		final long start1 = System.currentTimeMillis();
 
 		final double probaThreshold2 = 0.8;
-		final List< Spot > spots1 = wekaRunner.getSpotsFromLastProbabilities( probaThreshold2, simplify );
+		final List< Spot > spots1 = wekaRunner.getSpotsFromLastProbabilities( probaThreshold2, simplify, smoothingScale );
 
 		final long end1 = System.currentTimeMillis();
 		System.out.println( String.format( "Second run took %.2f seconds to run.", ( end1 - start1 ) / 1000. ) );

@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -23,12 +23,14 @@ package fiji.plugin.trackmate.weka;
 
 import static fiji.plugin.trackmate.detection.DetectorKeys.DEFAULT_TARGET_CHANNEL;
 import static fiji.plugin.trackmate.detection.DetectorKeys.KEY_TARGET_CHANNEL;
+import static fiji.plugin.trackmate.detection.ThresholdDetectorFactory.KEY_SMOOTHING_SCALE;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
 
+import org.scijava.Priority;
 import org.scijava.plugin.Plugin;
 
 import fiji.plugin.trackmate.Model;
@@ -37,7 +39,6 @@ import fiji.plugin.trackmate.detection.SpotDetector;
 import fiji.plugin.trackmate.detection.SpotDetectorFactory;
 import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.components.ConfigurationPanel;
-import fiji.plugin.trackmate.io.IOUtils;
 import fiji.plugin.trackmate.util.TMUtils;
 import net.imagej.ImgPlus;
 import net.imagej.axis.Axes;
@@ -45,7 +46,7 @@ import net.imglib2.Interval;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 
-@Plugin( type = SpotDetectorFactory.class )
+@Plugin( type = SpotDetectorFactory.class, priority = Priority.LOW - 4.1 )
 public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > implements SpotDetectorFactory< T >
 {
 
@@ -86,7 +87,8 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 	public static final String INFO_TEXT = "<html>"
 			+ "This detector relies on the 'Trainable Weka segmentation' plugin to detect objects."
 			+ "<p>"
-			+ "It works for 2D and 3D images, but returns contours only for 2D images."
+			+ "It works for 2D and 3D images, returns contours for 2D images and meshes"
+			+ "for 3D images."
 			+ "<p>"
 			+ "You need to provide the path to a classifier previously trained and saved using the "
 			+ "'Trainable Weka segmentation' plugin. It will classically be a '.model' file. "
@@ -102,25 +104,6 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 	 */
 
 	@Override
-	public String checkSettings( final Map< String, Object > settings )
-	{
-		final String error = SpotDetectorFactory.super.checkSettings( settings );
-		if ( error != null )
-			return error;
-
-		// First test to make sure we can read the classifier file.
-		final Object obj = settings.get( KEY_CLASSIFIER_FILEPATH );
-		if ( obj == null )
-			return "The path to the Weka classifier file is not set.";
-
-		final StringBuilder errorHolder = new StringBuilder();
-		if ( !IOUtils.canReadFile( ( String ) obj, errorHolder ) )
-			return "Problem with Weka classifier file: " + errorHolder.toString();
-
-		return null;
-	}
-
-	@Override
 	public SpotDetector< T > getDetector( final ImgPlus< T > img, final Map< String, Object > settings, final Interval interval, final int frame )
 	{
 		final int channel = ( Integer ) settings.get( KEY_TARGET_CHANNEL ) - 1;
@@ -128,12 +111,18 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 		final int classIndex = ( Integer ) settings.get( KEY_CLASS_INDEX );
 		final double probaThreshold = ( Double ) settings.get( KEY_PROBA_THRESHOLD );
 		final boolean simplify = true;
+		final Object smoothingObj = settings.get( KEY_SMOOTHING_SCALE );
+		final double smoothingScale = smoothingObj == null
+				? -1.
+				: ( ( Number ) smoothingObj ).doubleValue();
+
+		final String classifierFilePath = ( String ) settings.get( KEY_CLASSIFIER_FILEPATH );
 		final boolean is3D = img.dimensionIndex( Axes.Z ) >= 0;
-		final WekaRunner< T > runner = new WekaRunner<>( settings.get( KEY_CLASSIFIER_FILEPATH ).toString(), is3D );
+		final WekaRunner< T > runner = new WekaRunner<>( classifierFilePath, is3D );
 		if ( !runner.loadClassifier() )
 		{
-			final String errorMessage = runner.getErrorMessage();
-			System.err.println( errorMessage );
+			System.err.println( "Could not load classifier from " + classifierFilePath );
+			System.err.println( runner.getErrorMessage() );
 			return null;
 		}
 
@@ -143,8 +132,21 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 				interval,
 				classIndex,
 				probaThreshold,
-				simplify );
+				simplify,
+				smoothingScale );
 		return detector;
+	}
+
+	@Override
+	public Map< String, Object > getDefaultSettings()
+	{
+		final Map< String, Object > settings = new HashMap<>();
+		settings.put( KEY_TARGET_CHANNEL, DEFAULT_TARGET_CHANNEL );
+		settings.put( KEY_CLASS_INDEX, DEFAULT_CLASS_INDEX );
+		settings.put( KEY_PROBA_THRESHOLD, DEFAULT_PROBA_THRESHOLD );
+		settings.put( KEY_CLASSIFIER_FILEPATH, "" );
+		settings.put( KEY_SMOOTHING_SCALE, -1. );
+		return settings;
 	}
 
 	@Override
@@ -164,20 +166,15 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 	}
 
 	@Override
-	public ConfigurationPanel getDetectorConfigurationPanel( final Settings settings, final Model model )
+	public boolean has3Dsegmentation()
 	{
-		return new WekaDetectorConfigurationPanel( settings, model );
+		return true;
 	}
 
 	@Override
-	public Map< String, Object > getDefaultSettings()
+	public ConfigurationPanel getDetectorConfigurationPanel( final Settings settings, final Model model )
 	{
-		final Map< String, Object > settings = new HashMap<>();
-		settings.put( KEY_TARGET_CHANNEL, DEFAULT_TARGET_CHANNEL );
-		settings.put( KEY_CLASS_INDEX, DEFAULT_CLASS_INDEX );
-		settings.put( KEY_PROBA_THRESHOLD, DEFAULT_PROBA_THRESHOLD );
-		settings.put( KEY_CLASSIFIER_FILEPATH, "" );
-		return settings;
+		return new WekaDetectorConfigurationPanel( settings, model );
 	}
 
 	@Override

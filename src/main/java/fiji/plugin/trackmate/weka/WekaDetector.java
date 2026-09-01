@@ -59,13 +59,16 @@ public class WekaDetector< T extends RealType< T > & NativeType< T > > implement
 
 	private final boolean simplify;
 
+	private final double smoothingScale;
+
 	public WekaDetector(
 			final WekaRunner< T > runner,
 			final ImgPlus< T > img,
 			final Interval interval,
 			final int classIndex,
 			final double probaThreshold,
-			final boolean simplify )
+			final boolean simplify,
+			final double smoothingScale )
 	{
 		this.runner = runner;
 		this.img = img;
@@ -73,6 +76,7 @@ public class WekaDetector< T extends RealType< T > & NativeType< T > > implement
 		this.classIndex = classIndex;
 		this.probaThreshold = probaThreshold;
 		this.simplify = simplify;
+		this.smoothingScale = smoothingScale;
 		this.baseErrorMessage = BASE_ERROR_MESSAGE;
 	}
 
@@ -99,7 +103,7 @@ public class WekaDetector< T extends RealType< T > & NativeType< T > > implement
 			return false;
 		}
 
-		spots = runner.getSpots( probabilities, TMUtils.getSpatialCalibration( img ), probaThreshold, simplify );
+		spots = runner.getSpots( probabilities, TMUtils.getSpatialCalibration( img ), probaThreshold, simplify, smoothingScale );
 		if ( spots == null )
 		{
 			System.err.println( "Problem creating spots: " + runner.getErrorMessage() );
