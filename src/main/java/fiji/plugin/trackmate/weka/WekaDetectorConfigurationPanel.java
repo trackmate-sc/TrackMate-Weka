@@ -2,7 +2,7 @@
  * #%L
  * TrackMate: your buddy for everyday tracking.
  * %%
- * Copyright (C) 2021 - 2023 TrackMate developers.
+ * Copyright (C) 2021 - 2025 TrackMate developers.
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -36,7 +36,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +43,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -76,10 +74,6 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 {
 
 	private static final long serialVersionUID = 1L;
-
-	protected static final ImageIcon ICON = GuiUtils.scaleImage(
-			new ImageIcon( getResource( "images/TrackMateWeka-logo-100px.png" ) ),
-			64, 64 );
 
 	private static final String TITLE = WekaDetectorFactory.NAME;
 
@@ -118,10 +112,11 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 144, 0, 32 };
 		gridBagLayout.columnWeights = new double[] { 0.0, 1.0, 0.0 };
-		gridBagLayout.rowWeights = new double[] { 0., 1., 0., 0., 0., 0., 0., 0., 0., 1. };
+		gridBagLayout.rowHeights = new int[] { 0, 60, 0, 0, 0, 0, 0, 0, 0 };
+		gridBagLayout.rowWeights = new double[] { 0., 0., 0., 0., 0., 0., 0., 0., 0., 1. };
 		setLayout( gridBagLayout );
 
-		final JLabel lblDetector = new JLabel( TITLE, ICON, JLabel.RIGHT );
+		final JLabel lblDetector = new JLabel( TITLE, WekaDetectorFactory.ICON, JLabel.RIGHT );
 		lblDetector.setFont( BIG_FONT );
 		lblDetector.setHorizontalAlignment( SwingConstants.CENTER );
 		final GridBagConstraints gbcLblDetector = new GridBagConstraints();
@@ -144,8 +139,13 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 		gbcLblHelptext.gridwidth = 3;
 		gbcLblHelptext.insets = new Insets( 5, 10, 5, 10 );
 		gbcLblHelptext.gridx = 0;
-		gbcLblHelptext.gridy = gridy;
-		add( GuiUtils.textInScrollPanel( GuiUtils.infoDisplay( WekaDetectorFactory.INFO_TEXT ) ), gbcLblHelptext );
+		gbcLblHelptext.gridy = 1;
+		add( GuiUtils.textInScrollPanel( GuiUtils.infoDisplay(
+				"<html>Online documentation: <br/>"
+						+ "<a href='" + WekaDetectorFactory.DOC_URL + "'>"
+						+ WekaDetectorFactory.DOC_URL
+						+ "</a></html>" ) ),
+				gbcLblHelptext );
 
 		/*
 		 * Channel selector.
@@ -464,10 +464,5 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 				}
 			}
 		}.start();
-	}
-
-	protected static URL getResource( final String name )
-	{
-		return WekaDetectorFactory.class.getClassLoader().getResource( name );
 	}
 }

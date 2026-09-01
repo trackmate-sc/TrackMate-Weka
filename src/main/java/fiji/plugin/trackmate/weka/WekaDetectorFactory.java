@@ -2,7 +2,7 @@
  * #%L
  * TrackMate: your buddy for everyday tracking.
  * %%
- * Copyright (C) 2021 - 2023 TrackMate developers.
+ * Copyright (C) 2021 - 2025 TrackMate developers.
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -37,6 +37,7 @@ import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.detection.SpotDetector;
 import fiji.plugin.trackmate.detection.SpotDetectorFactory;
+import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.components.ConfigurationPanel;
 import fiji.plugin.trackmate.util.TMUtils;
 import net.imagej.ImgPlus;
@@ -52,9 +53,8 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 	/*
 	 * CONSTANTS
 	 */
-	/**
-	 * The key to the parameter that stores the path to the Weka classifier.
-	 */
+
+	/** The key to the parameter that stores the path to the Weka classifier. */
 	public static final String KEY_CLASSIFIER_FILEPATH = "CLASSIFIER_FILEPATH";
 
 	/**
@@ -79,6 +79,10 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 	/** The pretty name of the target detector. */
 	public static final String NAME = "Weka detector";
 
+	public static final String DOC_URL = "https://imagej.net/plugins/trackmate/detectors/trackmate-weka";
+
+	public static final ImageIcon ICON = new ImageIcon( GuiUtils.getResource( "images/TrackMateWeka-logo-64px.png", WekaDetectorFactory.class ) );
+
 	/** An html information text. */
 	public static final String INFO_TEXT = "<html>"
 			+ "This detector relies on the 'Trainable Weka segmentation' plugin to detect objects."
@@ -93,20 +97,7 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 			+ "also cite the Weka IJ paper: <a href=\"https://doi.org/10.1093/bioinformatics/btx180\">Arganda-Carreras, I.; Kaynig, V. & Rueden, C. et al. (2017), "
 			+ "'Trainable Weka Segmentation: a machine learning tool for microscopy pixel classification.', "
 			+ "Bioinformatics (Oxford Univ Press) 33 (15).</a> "
-			+ "<p>"
-			+ "Documentation for this module "
-			+ "<a href=\"https://imagej.net/plugins/trackmate/trackmate-weka\">on the ImageJ Wiki</a>."
-			+ "<p>"
 			+ "</html>";
-
-	/*
-	 * FIELDS
-	 */
-
-	/** The image to operate on. Multiple frames, single channel. */
-	protected ImgPlus< T > img;
-
-	protected Map< String, Object > settings;
 
 	/*
 	 * METHODS
@@ -134,6 +125,7 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 			System.err.println( runner.getErrorMessage() );
 			return null;
 		}
+
 		final WekaDetector< T > detector = new WekaDetector<>(
 				runner,
 				input,
@@ -143,22 +135,6 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 				simplify,
 				smoothingScale );
 		return detector;
-	}
-
-	@Override
-	public boolean forbidMultithreading()
-	{
-		/*
-		 * We want to run one frame after another, giving all resources to one
-		 * frame at a time.
-		 */
-		return true;
-	}
-
-	@Override
-	public ConfigurationPanel getDetectorConfigurationPanel( final Settings settings, final Model model )
-	{
-		return new WekaDetectorConfigurationPanel( settings, model );
 	}
 
 	@Override
@@ -174,15 +150,43 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 	}
 
 	@Override
-	public String getInfoText()
+	public boolean forbidMultithreading()
 	{
-		return INFO_TEXT;
+		/*
+		 * We want to run one frame after another, giving all resources to one
+		 * frame at a time.
+		 */
+		return true;
+	}
+
+	@Override
+	public boolean has2Dsegmentation()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean has3Dsegmentation()
+	{
+		return true;
+	}
+
+	@Override
+	public ConfigurationPanel getDetectorConfigurationPanel( final Settings settings, final Model model )
+	{
+		return new WekaDetectorConfigurationPanel( settings, model );
 	}
 
 	@Override
 	public ImageIcon getIcon()
 	{
-		return WekaDetectorConfigurationPanel.ICON;
+		return ICON;
+	}
+
+	@Override
+	public String getInfoText()
+	{
+		return INFO_TEXT;
 	}
 
 	@Override
@@ -198,14 +202,8 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 	}
 
 	@Override
-	public boolean has2Dsegmentation()
+	public String getUrl()
 	{
-		return true;
-	}
-
-	@Override
-	public WekaDetectorFactory< T > copy()
-	{
-		return new WekaDetectorFactory<>();
+		return DOC_URL;
 	}
 }
