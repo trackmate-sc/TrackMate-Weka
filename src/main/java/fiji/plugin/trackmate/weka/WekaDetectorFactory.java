@@ -40,6 +40,7 @@ import fiji.plugin.trackmate.detection.SpotDetectorFactory;
 import fiji.plugin.trackmate.gui.components.ConfigurationPanel;
 import fiji.plugin.trackmate.util.TMUtils;
 import net.imagej.ImgPlus;
+import net.imagej.axis.Axes;
 import net.imglib2.Interval;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -107,10 +108,6 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 
 	protected Map< String, Object > settings;
 
-	protected String errorMessage;
-
-	protected WekaRunner< T > runner;
-
 	/*
 	 * METHODS
 	 */
@@ -127,6 +124,16 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 		final double smoothingScale = smoothingObj == null
 				? -1.
 				: ( ( Number ) smoothingObj ).doubleValue();
+
+		final String classifierFilePath = ( String ) settings.get( KEY_CLASSIFIER_FILEPATH );
+		final boolean is3D = img.dimensionIndex( Axes.Z ) >= 0;
+		final WekaRunner< T > runner = new WekaRunner<>( classifierFilePath, is3D );
+		if ( !runner.loadClassifier() )
+		{
+			System.err.println( "Could not load classifier from " + classifierFilePath );
+			System.err.println( runner.getErrorMessage() );
+			return null;
+		}
 		final WekaDetector< T > detector = new WekaDetector<>(
 				runner,
 				input,
