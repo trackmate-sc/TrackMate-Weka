@@ -115,9 +115,8 @@ public class WekaDetectorConfigurationPanel extends ConfigurationPanel
 
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 144, 0, 32 };
-		gridBagLayout.rowHeights = new int[] { 0, 84, 0, 27, 0, 0, 0, 0, 37, 23 };
 		gridBagLayout.columnWeights = new double[] { 0.0, 1.0, 0.0 };
-		gridBagLayout.rowWeights = new double[] { 0., 1., 0., 0., 0., 0., 0., 0., 0., 0. };
+		gridBagLayout.rowWeights = new double[] { 0., 1., 0., 0., 0., 0., 0., 0., 0., 1. };
 		setLayout( gridBagLayout );
 
 		final JLabel lblDetector = new JLabel( TITLE, ICON, JLabel.RIGHT );

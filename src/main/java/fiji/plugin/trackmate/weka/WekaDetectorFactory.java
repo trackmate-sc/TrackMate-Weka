@@ -24,23 +24,12 @@ package fiji.plugin.trackmate.weka;
 import static fiji.plugin.trackmate.detection.DetectorKeys.DEFAULT_TARGET_CHANNEL;
 import static fiji.plugin.trackmate.detection.DetectorKeys.KEY_TARGET_CHANNEL;
 import static fiji.plugin.trackmate.detection.ThresholdDetectorFactory.KEY_SMOOTHING_SCALE;
-import static fiji.plugin.trackmate.io.IOUtils.readDoubleAttribute;
-import static fiji.plugin.trackmate.io.IOUtils.readIntegerAttribute;
-import static fiji.plugin.trackmate.io.IOUtils.readStringAttribute;
-import static fiji.plugin.trackmate.io.IOUtils.writeAttribute;
-import static fiji.plugin.trackmate.io.IOUtils.writeTargetChannel;
-import static fiji.plugin.trackmate.util.TMUtils.checkMapKeys;
-import static fiji.plugin.trackmate.util.TMUtils.checkOptionalParameter;
-import static fiji.plugin.trackmate.util.TMUtils.checkParameter;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
 
-import org.jdom2.Element;
 import org.scijava.Priority;
 import org.scijava.plugin.Plugin;
 
@@ -49,10 +38,8 @@ import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.detection.SpotDetector;
 import fiji.plugin.trackmate.detection.SpotDetectorFactory;
 import fiji.plugin.trackmate.gui.components.ConfigurationPanel;
-import fiji.plugin.trackmate.io.IOUtils;
 import fiji.plugin.trackmate.util.TMUtils;
 import net.imagej.ImgPlus;
-import net.imagej.axis.Axes;
 import net.imglib2.Interval;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -129,7 +116,7 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 	 */
 
 	@Override
-	public SpotDetector< T > getDetector( final Interval interval, final int frame )
+	public SpotDetector< T > getDetector( final ImgPlus< T > img, final Map< String, Object > settings, final Interval interval, final int frame )
 	{
 		final int channel = ( Integer ) settings.get( KEY_TARGET_CHANNEL ) - 1;
 		final ImgPlus< T > input = TMUtils.hyperSlice( img, channel, frame );
@@ -162,79 +149,6 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 	}
 
 	@Override
-	public boolean setTarget( final ImgPlus< T > img, final Map< String, Object > settings )
-	{
-		// First test to make sure we can read the classifier file.
-		final Object obj = settings.get( KEY_CLASSIFIER_FILEPATH );
-		if ( obj == null )
-		{
-			errorMessage = "The path to the Weka classifier file is not set.";
-			return false;
-		}
-
-		final StringBuilder errorHolder = new StringBuilder();
-		if ( !IOUtils.canReadFile( ( String ) obj, errorHolder ) )
-		{
-			errorMessage = "Problem with Weka classifier file: " + errorHolder.toString();
-			return false;
-		}
-
-		final String classifierFilePath = ( String ) obj;
-		final boolean is3D = img.dimensionIndex( Axes.Z ) >= 0;
-		this.runner = new WekaRunner<>( classifierFilePath, is3D );
-		if ( !runner.loadClassifier() )
-		{
-			errorMessage = runner.getErrorMessage();
-			return false;
-		}
-		this.img = img;
-		this.settings = settings;
-		return checkSettings( settings );
-	}
-
-	@Override
-	public String getErrorMessage()
-	{
-		return errorMessage;
-	}
-
-	@Override
-	public boolean marshall( final Map< String, Object > settings, final Element element )
-	{
-		final StringBuilder errorHolder = new StringBuilder();
-		boolean ok = writeTargetChannel( settings, element, errorHolder );
-		ok = ok && writeAttribute( settings, element, KEY_CLASSIFIER_FILEPATH, String.class, errorHolder );
-		ok = ok && writeAttribute( settings, element, KEY_CLASS_INDEX, Integer.class, errorHolder );
-		ok = ok && writeAttribute( settings, element, KEY_PROBA_THRESHOLD, Double.class, errorHolder );
-		ok = ok && writeAttribute( settings, element, KEY_SMOOTHING_SCALE, Double.class, errorHolder );
-
-		if ( !ok )
-			errorMessage = errorHolder.toString();
-
-		return ok;
-	}
-
-	@Override
-	public boolean unmarshall( final Element element, final Map< String, Object > settings )
-	{
-		settings.clear();
-		final StringBuilder errorHolder = new StringBuilder();
-		boolean ok = true;
-		ok = ok && readIntegerAttribute( element, settings, KEY_TARGET_CHANNEL, errorHolder );
-		ok = ok && readStringAttribute( element, settings, KEY_CLASSIFIER_FILEPATH, errorHolder );
-		ok = ok && readIntegerAttribute( element, settings, KEY_CLASS_INDEX, errorHolder );
-		ok = ok && readDoubleAttribute( element, settings, KEY_PROBA_THRESHOLD, errorHolder );
-		ok = ok & readDoubleAttribute( element, settings, KEY_SMOOTHING_SCALE, errorHolder );
-
-		if ( !ok )
-		{
-			errorMessage = errorHolder.toString();
-			return false;
-		}
-		return checkSettings( settings );
-	}
-
-	@Override
 	public ConfigurationPanel getDetectorConfigurationPanel( final Settings settings, final Model model )
 	{
 		return new WekaDetectorConfigurationPanel( settings, model );
@@ -250,47 +164,6 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 		settings.put( KEY_CLASSIFIER_FILEPATH, null );
 		settings.put( KEY_SMOOTHING_SCALE, -1. );
 		return settings;
-	}
-
-	@Override
-	public boolean checkSettings( final Map< String, Object > settings )
-	{
-		boolean ok = true;
-		final StringBuilder errorHolder = new StringBuilder();
-		ok = ok & checkParameter( settings, KEY_TARGET_CHANNEL, Integer.class, errorHolder );
-		ok = ok & checkParameter( settings, KEY_CLASS_INDEX, Integer.class, errorHolder );
-		ok = ok & checkParameter( settings, KEY_PROBA_THRESHOLD, Double.class, errorHolder );
-		ok = ok & checkParameter( settings, KEY_CLASSIFIER_FILEPATH, String.class, errorHolder );
-		ok = ok & checkOptionalParameter( settings, KEY_SMOOTHING_SCALE, Double.class, errorHolder );
-		final List< String > mandatoryKeys = new ArrayList<>();
-		mandatoryKeys.add( KEY_TARGET_CHANNEL );
-		mandatoryKeys.add( KEY_CLASS_INDEX );
-		mandatoryKeys.add( KEY_PROBA_THRESHOLD );
-		mandatoryKeys.add( KEY_CLASSIFIER_FILEPATH );
-		final List< String > optionalKeys = new ArrayList<>();
-		optionalKeys.add( KEY_SMOOTHING_SCALE );
-		ok = ok & checkMapKeys( settings, mandatoryKeys, optionalKeys, errorHolder );
-		if ( !ok )
-			errorMessage = errorHolder.toString();
-
-		// Extra test to make sure we can read the classifier file.
-		if ( ok )
-		{
-			final Object obj = settings.get( KEY_CLASSIFIER_FILEPATH );
-			if ( obj == null )
-			{
-				errorMessage = "The path to the Weka classifier file is not set.";
-				return false;
-			}
-
-			if ( !IOUtils.canReadFile( ( String ) obj, errorHolder ) )
-			{
-				errorMessage = "Problem with Weka classifier file: " + errorHolder.toString();
-				return false;
-			}
-		}
-
-		return ok;
 	}
 
 	@Override
