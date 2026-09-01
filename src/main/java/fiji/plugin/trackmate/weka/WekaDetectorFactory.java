@@ -161,7 +161,7 @@ public class WekaDetectorFactory< T extends RealType< T > & NativeType< T > > im
 		settings.put( KEY_TARGET_CHANNEL, DEFAULT_TARGET_CHANNEL );
 		settings.put( KEY_CLASS_INDEX, DEFAULT_CLASS_INDEX );
 		settings.put( KEY_PROBA_THRESHOLD, DEFAULT_PROBA_THRESHOLD );
-		settings.put( KEY_CLASSIFIER_FILEPATH, null );
+		settings.put( KEY_CLASSIFIER_FILEPATH, "" );
 		settings.put( KEY_SMOOTHING_SCALE, -1. );
 		return settings;
 	}
